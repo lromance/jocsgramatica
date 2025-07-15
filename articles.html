@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activitat de Concordança d'Article en Català (A1)</title>
+    <style>
+        /* Custom font for a clean look */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #e0f2fe, #e9d5ff); /* from-blue-100 to-purple-100 */
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1.5rem; /* rounded-3xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-2xl */
+            max-width: 28rem; /* max-w-md */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* space-y-6 - This gap controls spacing between main sections like h1, tab-nav, game-area */
+            border: 1px solid #e5e7eb; /* border border-gray-200 */
+        }
+
+        h1 {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 800; /* font-extrabold */
+            color: #1f2937; /* text-gray-800 */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        /* Adjusted spacing for the tab navigation */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem; /* Increased margin below tabs */
+            margin-top: -1rem; /* Keep original negative margin for positioning */
+        }
+
+        .tab-button {
+            flex: 1; /* flex-1 */
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            font-size: 1rem; /* text-base */
+            font-weight: 600; /* font-semibold */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-md */
+            transition: all 0.2s ease-in-out; /* transition duration-200 ease-in-out */
+            cursor: pointer;
+            margin: 0 0.25rem; /* mx-1 */
+            border: none; /* Remove default button border */
+        }
+
+        .tab-button.active {
+            background-color: #1d4ed8; /* bg-blue-700 */
+            color: #fff; /* text-white */
+        }
+
+        .tab-button:not(.active) {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #4b5563; /* text-gray-700 */
+        }
+
+        .tab-button:not(.active):hover {
+            background-color: #d1d5db; /* hover:bg-gray-300 */
+        }
+
+        /* Explicit spacing for elements within game-area */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            /* Removed gap here to control spacing manually for specific elements */
+        }
+
+        .game-area p {
+            color: #4b5563; /* text-gray-600 */
+            font-size: 1.125rem; /* text-lg */
+            margin-top: 0; /* Reset margin-top, space handled by tab-navigation margin-bottom */
+            margin-bottom: 2rem; /* Increased space below instruction text */
+        }
+
+        #word-display {
+            font-size: 3rem; /* text-5xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* text-gray-900 */
+            background-color: #eff6ff; /* bg-blue-50 */
+            padding: 1rem; /* p-4 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* shadow-inner */
+            border: 1px solid #bfdbfe; /* border border-blue-200 */
+            margin-bottom: 2rem; /* Increased space below word display */
+        }
+
+        #article-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* grid-cols-2 */
+            gap: 1rem; /* gap-4 */
+            margin-bottom: 1.5rem; /* Space before feedback */
+        }
+
+        .article-button {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: #fff; /* text-white */
+            font-weight: 700; /* font-bold */
+            padding: 0.75rem 1.5rem; /* py-3 px-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+            transition: all 0.3s ease-in-out; /* transition duration-300 ease-in-out */
+            transform: scale(1); /* initial transform */
+            outline: none; /* focus:outline-none */
+            border: none; /* Remove default button border */
+            cursor: pointer;
+        }
+
+        .article-button:hover {
+            background-color: #2563eb; /* hover:bg-blue-600 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+
+        .article-button:focus {
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.5); /* focus:ring-4 focus:ring-blue-300 */
+        }
+
+        .article-button.correct {
+            background-color: #22c55e; /* bg-green-500 */
+        }
+        .article-button.correct:hover {
+            background-color: #16a34a; /* hover:bg-green-600 */
+        }
+
+        .article-button.incorrect {
+            background-color: #ef4444; /* bg-red-500 */
+        }
+        .article-button.incorrect:hover {
+            background-color: #dc2626; /* hover:bg-red-600 */
+        }
+
+        .article-button:disabled {
+            opacity: 0.5; /* opacity-50 */
+            cursor: not-allowed; /* cursor-not-allowed */
+            transform: none; /* remove hover scale */
+            box-shadow: none; /* remove hover shadow */
+        }
+
+        #feedback {
+            min-height: 40px; /* min-h-[40px] */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            margin-top: 0; /* Space handled by article-buttons margin-bottom */
+            margin-bottom: 1.5rem; /* Space before action buttons */
+        }
+
+        .text-green-700 { color: #047857; }
+        .text-red-700 { color: #b91c1c; }
+        .text-purple-700 { color: #7e22ce; }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem; /* gap-4 */
+            margin-top: 0; /* Space handled by feedback margin-bottom */
+            margin-bottom: 1.5rem; /* Space before start button if present */
+        }
+
+        .next-button, .restart-button, .start-button {
+            color: #fff;
+            font-weight: 700; /* font-bold */
+            padding: 0.75rem 2rem; /* py-3 px-8 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+            transition: all 0.3s ease-in-out; /* transition duration-300 ease-in-out */
+            transform: scale(1); /* initial transform */
+            outline: none; /* focus:outline-none */
+            border: none; /* Remove default button border */
+            cursor: pointer;
+        }
+
+        .next-button {
+            background-color: #9333ea; /* bg-purple-600 */
+            flex: 1; /* flex-1 */
+        }
+        .next-button:hover {
+            background-color: #7e22ce; /* hover:bg-purple-700 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .next-button:focus {
+            box-shadow: 0 0 0 4px rgba(192, 132, 252, 0.5); /* focus:ring-4 focus:ring-purple-300 */
+        }
+
+        .restart-button {
+            background-color: #f97316; /* bg-orange-500 */
+            flex: 1; /* flex-1 */
+        }
+        .restart-button:hover {
+            background-color: #ea580c; /* hover:bg-orange-600 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .restart-button:focus {
+            box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.5); /* focus:ring-4 focus:ring-orange-300 */
+        }
+
+        .start-button {
+            background-color: #16a34a; /* bg-green-600 */
+            width: 100%; /* w-full */
+            margin-top: 0; /* Space handled by action-buttons margin-bottom */
+            margin-bottom: 1.5rem; /* Space before score progress */
+        }
+        .start-button:hover {
+            background-color: #15803d; /* hover:bg-green-700 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .start-button:focus {
+            box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.5); /* focus:ring-4 focus:ring-green-300 */
+        }
+
+        .score-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #374151; /* text-gray-700 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            margin-top: 0; /* Space handled by start-button margin-bottom */
+            padding-top: 1rem; /* pt-4 */
+            border-top: 1px solid #e5e7eb; /* border-t border-gray-200 */
+        }
+
+        .study-list-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Consistent gap for study list area */
+        }
+
+        #study-list-area p {
+            margin-bottom: 0; /* Space handled by parent gap */
+        }
+
+        #word-list-container {
+            background-color: #eff6ff; /* bg-blue-50 */
+            padding: 1rem; /* p-4 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* shadow-inner */
+            border: 1px solid #bfdbfe; /* border border-blue-200 */
+            max-height: 20rem; /* max-h-80 */
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .word-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0; /* p-2 */
+            border-bottom: 1px solid #e5e7eb; /* border-b border-gray-200 */
+        }
+        .word-list-item:last-child {
+            border-bottom: none; /* last:border-b-0 */
+        }
+        .word-list-item span:first-child {
+            font-weight: 500; /* font-medium */
+            color: #1f2937; /* text-gray-800 */
+        }
+        .word-list-item span:last-child {
+            color: #2563eb; /* text-blue-600 */
+            font-weight: 600; /* font-semibold */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="container">
+        <h1>Practica Articles en Català</h1>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button id="activity-tab" class="tab-button active">Activitat</button>
+            <button id="list-tab" class="tab-button">Llista de Paraules</button>
+        </div>
+
+        <!-- Activity Area -->
+        <div id="activity-area" class="game-area">
+            <p>Tria l'article correcte per a la paraula.</p>
+            <div id="word-display">
+                <!-- Word will be displayed here -->
+            </div>
+
+            <div id="article-buttons">
+                <button class="article-button" data-article="el">el</button>
+                <button class="article-button" data-article="la">la</button>
+                <button class="article-button" data-article="un">un</button>
+                <button class="article-button" data-article="una">una</button>
+            </div>
+
+            <div id="feedback">
+                <!-- Feedback (Correct/Incorrect) will be displayed here -->
+            </div>
+
+            <div class="action-buttons">
+                <button id="next-button" class="next-button" style="display: none;">Següent Paraula</button>
+                <button id="restart-game-button" class="restart-button" style="display: none;">Reiniciar Partida</button>
+            </div>
+            <button id="start-button" class="start-button">Començar Activitat</button>
+
+            <!-- Score and Progress -->
+            <div class="score-progress">
+                <span>Puntuació: <span id="score">0</span></span>
+                <span>Paraula <span id="current-word-number">0</span> de <span id="total-words">0</span></span>
+            </div>
+        </div>
+
+        <!-- Study List Area -->
+        <div id="study-list-area" class="study-list-area" style="display: none;">
+            <p>Aquí pots veure la llista completa de paraules amb els seus articles correctes.</p>
+            <div id="word-list-container">
+                <!-- Word list will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array of simple Catalan words with their correct definite and indefinite articles.
+        // Each object contains the noun, an array of correct articles, and its grammatical gender.
+        const allWords = [
+            { noun: "cotxe", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "casa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "llibre", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "taula", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "gos", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "flor", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "pare", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "mare", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "nen", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "nena", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "platja", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "sol", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "lluna", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "pa", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "fruita", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "peix", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "porta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "finestra", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "llit", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cadira", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "aigua", correctArticles: ["l'", "una"], gender: "feminine" }, // Special case for 'l''
+            { noun: "arbre", correctArticles: ["l'", "un"], gender: "masculine" }, // Special case for 'l''
+            { noun: "escola", correctArticles: ["l'", "una"], gender: "feminine" }, // Special case for 'l''
+            { noun: "home", correctArticles: ["l'", "un"], gender: "masculine" }, // Special case for 'l''
+            { noun: "dona", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "gat", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "rata", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "ocell", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "ou", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "ull", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "orella", correctArticles: ["l'", "una"], gender: "feminine" },
+            { noun: "nas", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "boca", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "mà", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "peu", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cap", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "braç", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cama", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "cor", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cel", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "terra", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "mar", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "riu", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "muntanya", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "ciutat", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "poble", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "carrer", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "plaça", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "parc", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "hospital", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "botiga", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "mercat", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "restaurant", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "hotel", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "aeroport", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "estació", correctArticles: ["l'", "una"], gender: "feminine" },
+            { noun: "tren", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "autobús", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "bicicleta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "moto", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "avió", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "vaixell", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "clau", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "porta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "llum", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "ombra", correctArticles: ["l'", "una"], gender: "feminine" },
+            { noun: "temps", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "dia", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "nit", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "matí", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "tarda", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "setmana", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "mes", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "any", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "hora", correctArticles: ["l'", "una"], gender: "feminine" },
+            { noun: "minut", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "segon", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "problema", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "idea", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "resposta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "pregunta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "nom", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "lloc", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cosa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "persona", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "animal", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "planta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "arbre", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "flor", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "fruit", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "verdura", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "carn", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "llet", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "formatge", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "ou", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "sucre", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "sal", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "oli", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "vinagre", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cafè", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "te", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "vi", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "cervesa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "sopa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "arròs", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "pasta", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "patata", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "tomàquet", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "ceba", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "all", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "pastanaga", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "cogombre", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "enciam", correctArticles: ["l'", "un"], gender: "masculine" },
+            { noun: "carbassa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "poma", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "plàtan", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "taronja", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "llimona", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "raïm", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "maduixa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "cirera", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "pressec", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "pera", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "kiwi", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "meló", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "síndria", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "figa", correctArticles: ["la", "una"], gender: "feminine" },
+            { noun: "dàtil", correctArticles: ["el", "un"], gender: "masculine" },
+            { noun: "nous", correctArticles: ["les", "unes"], gender: "feminine" }, // Plural example
+            { noun: "ous", correctArticles: ["els", "uns"], gender: "masculine" }, // Plural example
+        ];
+
+        // DOM elements
+        const activityTab = document.getElementById('activity-tab');
+        const listTab = document.getElementById('list-tab');
+        const activityArea = document.getElementById('activity-area');
+        const studyListArea = document.getElementById('study-list-area');
+        const wordListContainer = document.getElementById('word-list-container');
+
+        const wordDisplay = document.getElementById('word-display');
+        const articleButtons = document.getElementById('article-buttons');
+        const feedbackDisplay = document.getElementById('feedback');
+        const nextButton = document.getElementById('next-button');
+        const restartGameButton = document.getElementById('restart-game-button'); // New restart button
+        const startButton = document.getElementById('start-button');
+        const scoreDisplay = document.getElementById('score');
+        const currentWordNumberDisplay = document.getElementById('current-word-number');
+        const totalWordsDisplay = document.getElementById('total-words');
+
+        // Game state variables
+        let currentWordIndex = 0;
+        let score = 0;
+        let shuffledWords = []; // This will hold the 20 words for the current game
+        const WORDS_PER_GAME = 20; // Define how many words to pick per game
+        let gameStarted = false;
+
+        /**
+         * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        /**
+         * Loads and displays the current word for the activity.
+         * Updates the word display and progress counter.
+         */
+        function loadWord() {
+            // Ensure the game has started before loading words
+            if (!gameStarted) return;
+
+            // Check if all words in the current game session have been covered
+            if (currentWordIndex >= shuffledWords.length) {
+                endGame();
+                return;
+            }
+
+            // Get the current word object from the selected 20 words
+            const currentWord = shuffledWords[currentWordIndex];
+            wordDisplay.textContent = currentWord.noun; // Display the noun
+
+            // Reset feedback and button styles
+            feedbackDisplay.textContent = '';
+            nextButton.style.display = 'none'; // Hide next button until an answer is given
+            enableButtons(); // Re-enable article selection buttons
+
+            // Update progress display
+            currentWordNumberDisplay.textContent = currentWordIndex + 1;
+            totalWordsDisplay.textContent = shuffledWords.length;
+        }
+
+        /**
+         * Handles the user's article selection.
+         * Checks if the selected article is correct, updates score and feedback.
+         * Disables buttons after an answer is given.
+         * @param {Event} event The click event from the article button.
+         */
+        function checkAnswer(event) {
+            // If game hasn't started or buttons are disabled, do nothing
+            if (!gameStarted || event.target.disabled) return;
+
+            const selectedArticle = event.target.dataset.article; // Get the article from data-article attribute
+            const currentWord = shuffledWords[currentWordIndex];
+
+            // Check if the selected article is one of the correct articles for the current word
+            if (currentWord.correctArticles.includes(selectedArticle)) {
+                feedbackDisplay.textContent = 'Correcte! 🎉';
+                feedbackDisplay.className = 'min-h-[40px] text-xl font-semibold mt-4 text-green-700'; // Green text for correct
+                score++; // Increment score
+            } else {
+                // Display correct articles if the answer is incorrect
+                const correct = currentWord.correctArticles.join(' o ');
+                feedbackDisplay.textContent = `Incorrecte. 😔 Els articles correctes són: ${correct}.`;
+                feedbackDisplay.className = 'min-h-[40px] text-xl font-semibold mt-4 text-red-700'; // Red text for incorrect
+            }
+
+            scoreDisplay.textContent = score; // Update score display
+            disableButtons(); // Disable buttons after answering
+            nextButton.style.display = 'block'; // Show the next button
+            restartGameButton.style.display = 'block'; // Show restart button after first answer
+        }
+
+        /**
+         * Disables all article selection buttons.
+         * Adds a visual "disabled" style.
+         */
+        function disableButtons() {
+            Array.from(articleButtons.children).forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+                button.classList.remove('hover:bg-blue-600', 'transform', 'hover:scale-105', 'focus:ring-blue-300');
+            });
+        }
+
+        /**
+         * Enables all article selection buttons.
+         * Removes "disabled" style and re-applies hover effects.
+         */
+        function enableButtons() {
+            Array.from(articleButtons.children).forEach(button => {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+                button.classList.add('hover:bg-blue-600', 'transform', 'hover:scale-105', 'focus:ring-blue-300');
+            });
+        }
+
+        /**
+         * Moves to the next word in the shuffled list.
+         * If all words are covered, ends the game.
+         */
+        function nextWord() {
+            currentWordIndex++;
+            loadWord(); // Load the next word or end the game
+        }
+
+        /**
+         * Initializes the game: shuffles words, selects 20, resets score, loads the first word.
+         */
+        function startGame() {
+            gameStarted = true;
+            // Shuffle the entire list of words
+            shuffleArray(allWords);
+            // Select the first WORDS_PER_GAME (20) words for the current game session
+            shuffledWords = allWords.slice(0, WORDS_PER_GAME);
+
+            currentWordIndex = 0; // Reset word index
+            score = 0; // Reset score
+            scoreDisplay.textContent = score; // Update score display
+            startButton.style.display = 'none'; // Hide start button
+            nextButton.style.display = 'none'; // Ensure next button is hidden initially
+            restartGameButton.style.display = 'block'; // Show restart button when game starts
+            wordDisplay.textContent = ''; // Clear initial word display
+            feedbackDisplay.textContent = ''; // Clear initial feedback
+            enableButtons(); // Ensure buttons are enabled for the first word
+            loadWord(); // Load the first word
+        }
+
+        /**
+         * Ends the game, displays final score and an option to restart.
+         */
+        function endGame() {
+            gameStarted = false;
+            wordDisplay.textContent = `Activitat Acabada!`;
+            feedbackDisplay.textContent = `La teva puntuació final és: ${score} de ${shuffledWords.length}.`;
+            feedbackDisplay.className = 'min-h-[40px] text-xl font-semibold mt-4 text-purple-700';
+            disableButtons(); // Disable buttons
+            nextButton.style.display = 'none'; // Hide next button
+            restartGameButton.style.display = 'none'; // Hide restart button at the end of the game
+            startButton.textContent = 'Tornar a Començar'; // Change start button text
+            startButton.style.display = 'block'; // Show start button to restart
+            currentWordNumberDisplay.textContent = shuffledWords.length; // Show total words
+        }
+
+        /**
+         * Populates the study list area with all words and their correct articles.
+         */
+        function populateStudyList() {
+            wordListContainer.innerHTML = ''; // Clear previous list
+            // Sort words alphabetically for easier study
+            const sortedWords = [...allWords].sort((a, b) => a.noun.localeCompare(b.noun));
+
+            sortedWords.forEach(word => {
+                const listItem = document.createElement('div');
+                listItem.className = 'word-list-item';
+                listItem.innerHTML = `
+                    <span>${word.noun}</span>
+                    <span>(${word.correctArticles.join(' / ')})</span>
+                `;
+                wordListContainer.appendChild(listItem);
+            });
+        }
+
+        /**
+         * Switches the view between the activity area and the study list area.
+         * @param {string} view 'activity' or 'list'.
+         */
+        function switchView(view) {
+            if (view === 'activity') {
+                activityArea.style.display = 'block';
+                studyListArea.style.display = 'none';
+                activityTab.classList.add('active');
+                listTab.classList.remove('active');
+            } else if (view === 'list') {
+                activityArea.style.display = 'none';
+                studyListArea.style.display = 'block';
+                activityTab.classList.remove('active');
+                listTab.classList.add('active');
+                populateStudyList(); // Populate the list when switching to it
+            }
+        }
+
+        // Event Listeners
+        articleButtons.addEventListener('click', (event) => {
+            if (event.target.classList.contains('article-button')) {
+                checkAnswer(event);
+            }
+        });
+
+        nextButton.addEventListener('click', nextWord);
+        startButton.addEventListener('click', startGame);
+        restartGameButton.addEventListener('click', startGame); // Event listener for the new restart button
+
+        // Tab click listeners
+        activityTab.addEventListener('click', () => switchView('activity'));
+        listTab.addEventListener('click', () => switchView('list'));
+
+        // Initial setup: Ensure activity view is shown by default and buttons are hidden
+        switchView('activity');
+        restartGameButton.style.display = 'none'; // Hide restart button initially
+    </script>
+</body>
+</html>
