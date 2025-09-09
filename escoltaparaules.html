@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolta i Escriu - CFA LA PAU</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f4f8;
+            color: #2d3748;
+        }
+        .container {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #2b6cb0;
+            margin-bottom: 2rem;
+        }
+        .message-box {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group, .select-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        input, select, button {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e0;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4c66f5;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4359d3;
+        }
+        #feedback {
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-top: 1rem;
+        }
+        .hidden {
+            display: none;
+        }
+        .correct {
+            color: #38a169;
+        }
+        .incorrect {
+            color: #e53e3e;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4c66f5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .score-summary-card {
+            background-color: #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .score-summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #cbd5e0;
+        }
+        .score-summary-item:last-child {
+            border-bottom: none;
+        }
+        .score-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .score-value {
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        .correct-score {
+            color: #38a169;
+        }
+        .incorrect-score {
+            color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="start-screen">
+            <h1>Escolta i Escriu - CFA LA PAU</h1>
+            <div id="welcome-text-container">
+                <p lang="es">Esta es una app para practicar la escritura.</p>
+                <p lang="ca">Aquesta és una app per practicar l'escriptura.</p>
+                <p lang="en">This is an app for practicing spelling.</p>
+            </div>
+            <div id="group-select-container">
+                <p id="group-prompt">Selecciona un grupo:</p>
+                <div class="loader" id="group-loader"></div>
+                <select id="group-select" class="hidden"></select>
+                <button id="start-button" class="hidden">
+                    <span lang="es">Empezar</span> /
+                    <span lang="ca">Començar</span> /
+                    <span lang="en">Start</span>
+                </button>
+            </div>
+            <div id="topic-select-container" class="hidden">
+                <p id="topic-prompt"></p>
+                <select id="topic-select"></select>
+                <button id="start-game-button"></button>
+            </div>
+            <div id="final-score-summary" class="hidden"></div>
+        </div>
+
+        <!-- Pantalla del juego -->
+        <div id="game-screen" class="hidden">
+            <h1 id="game-title">Escolta i Escriu - CFA LA PAU</h1>
+            <div class="message-box">
+                <p id="instruction-text"></p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="user-input">
+                <button id="speak-button"></button>
+                <button id="check-button"></button>
+            </div>
+            <p id="feedback"></p>
+            <p id="score-display" class="hidden"></p>
+            <button id="return-button"></button>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/a/macros/cfalapau.cat/s/AKfycbweKWa64Bvk8ZCqmTIFLnOQ5zvU_1WD_wrxpQ8a1KF1V9HuIz9yvByyuo5uxQjsyUK4ig/exec'; // Reemplaza con la URL de tu script GAS
+
+        const startScreen = document.getElementById('start-screen');
+        const welcomeTextContainer = document.getElementById('welcome-text-container');
+        const groupSelectContainer = document.getElementById('group-select-container');
+        const groupPrompt = document.getElementById('group-prompt');
+        const groupLoader = document.getElementById('group-loader');
+        const topicSelectContainer = document.getElementById('topic-select-container');
+        const gameScreen = document.getElementById('game-screen');
+        const finalScoreSummary = document.getElementById('final-score-summary');
+
+        const groupSelect = document.getElementById('group-select');
+        const startButton = document.getElementById('start-button');
+        const topicSelect = document.getElementById('topic-select');
+        const startGameButton = document.getElementById('start-game-button');
+
+        const gameTitle = document.getElementById('game-title');
+        const instructionText = document.getElementById('instruction-text');
+        const userInput = document.getElementById('user-input');
+        const speakButton = document.getElementById('speak-button');
+        const checkButton = document.getElementById('check-button');
+        const returnButton = document.getElementById('return-button');
+        const feedbackElement = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score-display');
+
+        let words = [];
+        let currentWord = '';
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let attemptCount = 0;
+        let currentGroup = '';
+        let currentTopic = '';
+        let currentLang = 'es'; // Idioma por defecto en la carga inicial
+        let voice = null;
+
+        const translations = {
+            'es': {
+                'title': 'Aprende a Escribir',
+                'groupPrompt': 'Selecciona un grupo:',
+                'topicPrompt': 'Selecciona un tema:',
+                'startBtn': 'Empezar',
+                'startGameBtn': 'Comenzar el juego',
+                'instruction': 'Escucha y escribe la palabra:',
+                'listenBtn': 'Escucha',
+                'checkBtn': 'Comprueba',
+                'correct': '¡Correcto!',
+                'incorrect': 'Inténtalo de nuevo.',
+                'returnBtn': 'Volver al inicio',
+                'finalScore': 'Puntuación final del grupo "{{group}}", tema "{{topic}}": {{correct}} correctas, {{incorrect}} incorrectas.'
+            },
+            'ca': {
+                'title': 'Aprèn a Escriure',
+                'groupPrompt': 'Selecciona un grup:',
+                'topicPrompt': 'Selecciona un tema:',
+                'startBtn': 'Començar',
+                'startGameBtn': 'Comença el joc',
+                'instruction': 'Escolta i escriu la paraula:',
+                'listenBtn': 'Escolta',
+                'checkBtn': 'Comprova',
+                'correct': 'Correcte!',
+                'incorrect': 'Torna-ho a provar.',
+                'returnBtn': 'Tornar a l\'inici',
+                'finalScore': 'Puntuació final del grup "{{group}}", tema "{{topic}}": {{correct}} correctes, {{incorrect}} incorrectes.'
+            },
+            'en': {
+                'title': 'Learn to Write',
+                'groupPrompt': 'Select a group:',
+                'topicPrompt': 'Select a topic:',
+                'startBtn': 'Start',
+                'startGameBtn': 'Start game',
+                'instruction': 'Listen and write the word:',
+                'listenBtn': 'Listen',
+                'checkBtn': 'Check',
+                'correct': 'Correct!',
+                'incorrect': 'Try again.',
+                'returnBtn': 'Return to start',
+                'finalScore': 'Final score for group "{{group}}", topic "{{topic}}": {{correct}} correct, {{incorrect}} incorrect.'
+            }
+        };
+
+        // Función para cambiar el idioma de la interfaz del juego
+        function setLanguage(lang) {
+            currentLang = lang;
+            gameTitle.textContent = "Escolta i Escriu - CFA LA PAU";
+            instructionText.textContent = translations[currentLang].instruction;
+            speakButton.textContent = translations[currentLang].listenBtn;
+            checkButton.textContent = translations[currentLang].checkBtn;
+            returnButton.textContent = translations[currentLang].returnBtn;
+            document.getElementById('topic-prompt').textContent = translations[currentLang].topicPrompt;
+            startGameButton.textContent = translations[currentLang].startGameBtn;
+        }
+
+        // Carga los grupos desde la hoja de cálculo.
+        function fetchGroups() {
+            groupLoader.classList.remove('hidden');
+            groupSelect.classList.add('hidden');
+            startButton.classList.add('hidden');
+            
+            fetch(`${SCRIPT_URL}?action=getGroups`)
+                .then(response => response.json())
+                .then(data => {
+                    groupLoader.classList.add('hidden');
+                    groupSelect.classList.remove('hidden');
+                    startButton.classList.remove('hidden');
+                    
+                    groupSelect.innerHTML = '';
+                    if (data.error) {
+                         showError(data.error);
+                         return;
+                    }
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.group;
+                        option.textContent = item.group;
+                        option.setAttribute('data-lang', item.lang);
+                        groupSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    groupLoader.classList.add('hidden');
+                    showError("No se pudo cargar la lista de grupos. Asegúrate de que el script de Google Sheets esté publicado correctamente. " + error.message);
+                });
+        }
+        
+        // Carga los temas y palabras según el grupo y el tema seleccionados.
+        function fetchWordsAndTopics(group, topic = null) {
+            let url = `${SCRIPT_URL}?action=getWordsByGroupAndTopic&group=${encodeURIComponent(group)}`;
+            if (topic) {
+                url += `&topic=${encodeURIComponent(topic)}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    if (topic) {
+                        words = data.words;
+                        startGame();
+                    } else {
+                        topicSelect.innerHTML = '';
+                        data.topics.forEach(t => {
+                            const option = document.createElement('option');
+                            option.value = t;
+                            option.textContent = t;
+                            topicSelect.appendChild(option);
+                        });
+                        topicSelectContainer.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                     showError(error.message);
+                });
+        }
+
+        // Inicia el juego.
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            userInput.value = '';
+            feedbackElement.textContent = '';
+            scoreDisplay.classList.add('hidden');
+            finalScoreSummary.classList.add('hidden');
+
+            correctCount = 0;
+            incorrectCount = 0;
+            attemptCount = 0;
+
+            loadVoices();
+            // Llama a displayNewWord() después de un breve retraso para evitar la doble pronunciación
+            setTimeout(displayNewWord, 500); 
+        }
+
+        // Muestra una nueva palabra.
+        function displayNewWord() {
+            if (words.length === 0) {
+                showFinalScore();
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words.splice(randomIndex, 1)[0]; // Saca la palabra de la lista para no repetirla
+            speakText(currentWord);
+        }
+
+        // Carga las voces del navegador.
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            const langCode = currentLang === 'es' ? 'es-ES' : currentLang === 'ca' ? 'ca-ES' : 'en-US';
+            voice = voices.find(v => v.lang === langCode);
+            if (!voice) {
+                console.warn(`Voz para el idioma ${langCode} no encontrada. Usando la predeterminada.`);
+            }
+        }
+        speechSynthesis.onvoiceschanged = loadVoices;
+
+        // Lee el texto en voz alta.
+        function speakText(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (voice) {
+                utterance.voice = voice;
+            }
+            const langCode = currentLang === 'es' ? 'es-ES' : currentLang === 'ca' ? 'ca-ES' : 'en-US';
+            utterance.lang = langCode;
+            speechSynthesis.speak(utterance);
+        }
+
+        // Comprueba si la palabra escrita es correcta.
+        function checkWord() {
+            const userText = userInput.value.toLowerCase().trim();
+            if (userText === currentWord.toLowerCase()) {
+                feedbackElement.textContent = translations[currentLang].correct;
+                feedbackElement.className = 'correct';
+                speakText(translations[currentLang].correct);
+                correctCount++;
+                attemptCount = 0; // Reinicia los intentos
+                setTimeout(() => {
+                    userInput.value = '';
+                    feedbackElement.textContent = '';
+                    displayNewWord();
+                }, 1500);
+            } else {
+                attemptCount++;
+                if (attemptCount >= 2) {
+                    feedbackElement.innerHTML = `¡Incorrecto! La palabra era: <span style="color: #4c66f5; font-weight: bold;">"${currentWord}"</span>.`;
+                    feedbackElement.className = 'incorrect';
+                    incorrectCount++;
+                    attemptCount = 0; // Reinicia los intentos
+                    setTimeout(() => {
+                        userInput.value = '';
+                        feedbackElement.textContent = '';
+                        displayNewWord();
+                    }, 3000);
+                } else {
+                    feedbackElement.textContent = translations[currentLang].incorrect;
+                    feedbackElement.className = 'incorrect';
+                    speakText(translations[currentLang].incorrect);
+                }
+            }
+        }
+
+        // Muestra la puntuación final.
+        function showFinalScore() {
+            userInput.classList.add('hidden');
+            checkButton.classList.add('hidden');
+            speakButton.classList.add('hidden');
+            
+            scoreDisplay.textContent = translations[currentLang].finalScore
+                .replace('{{group}}', currentGroup)
+                .replace('{{topic}}', currentTopic)
+                .replace('{{correct}}', correctCount)
+                .replace('{{incorrect}}', incorrectCount);
+            
+            scoreDisplay.classList.remove('hidden');
+            feedbackElement.textContent = '';
+        }
+        
+        // Vuelve a la pantalla de inicio.
+        function returnToStart() {
+            startScreen.classList.remove('hidden');
+            gameScreen.classList.add('hidden');
+            groupSelectContainer.classList.remove('hidden');
+            topicSelectContainer.classList.add('hidden');
+            userInput.classList.remove('hidden');
+            checkButton.classList.remove('hidden');
+            speakButton.classList.remove('hidden');
+            feedbackElement.classList.remove('hidden');
+            scoreDisplay.classList.add('hidden');
+            
+            // Muestra el resumen de la última partida
+            if (currentGroup && currentTopic) {
+                finalScoreSummary.innerHTML = `
+                    <h3>${translations[currentLang].finalScore.replace('{{group}}', currentGroup).replace('{{topic}}', currentTopic).split(':')[0]}:</h3>
+                    <div class="score-summary-card">
+                        <div class="score-summary-item">
+                            <span class="score-label">${translations['es'].correct}</span>
+                            <span class="score-value correct-score">${correctCount}</span>
+                        </div>
+                        <div class="score-summary-item">
+                            <span class="score-label">${translations['es'].incorrect}</span>
+                            <span class="score-value incorrect-score">${incorrectCount}</span>
+                        </div>
+                    </div>
+                `;
+                finalScoreSummary.classList.remove('hidden');
+            } else {
+                finalScoreSummary.classList.add('hidden');
+            }
+
+            // Reestablece la interfaz de inicio al idioma por defecto (ES)
+            groupPrompt.textContent = translations['es'].groupPrompt;
+        }
+
+        function showError(message) {
+            feedbackElement.textContent = `Error: ${message}`;
+            feedbackElement.style.color = 'red';
+            console.error(message);
+        }
+
+        // Event listeners
+        startButton.addEventListener('click', () => {
+            currentGroup = groupSelect.value;
+            const selectedLang = groupSelect.options[groupSelect.selectedIndex].getAttribute('data-lang');
+            setLanguage(selectedLang.toLowerCase());
+            fetchWordsAndTopics(currentGroup);
+        });
+        
+        startGameButton.addEventListener('click', () => {
+            currentTopic = topicSelect.value;
+            fetchWordsAndTopics(currentGroup, currentTopic);
+        });
+
+        speakButton.addEventListener('click', () => speakText(currentWord));
+        checkButton.addEventListener('click', checkWord);
+        returnButton.addEventListener('click', returnToStart);
+
+        // Inicia la carga de grupos al cargar la página
+        document.addEventListener('DOMContentLoaded', fetchGroups);
+
+    </script>
+</body>
+</html>
