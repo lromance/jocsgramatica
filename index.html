@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramientas de Gramática - CFA La Pau</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            gap: 1.5rem;
+        }
+        li {
+            background-color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        .tool-title {
+            font-size: 1.5rem;
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+        .tool-description {
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        .tool-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .tool-link:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Eines creades</h1>
+        <p class="subtitle">Recursos per practicar la gramàtica catalana de manera interactiva.</p>
+
+        <ul>
+            <li>
+                <h2 class="tool-title">1) Practicar la concordança de l'article amb el nom</h2>
+                <p class="tool-description">Es basa en una llista de paraules de català A1 creada per IA.</p>
+                <a href="https://lromance.github.io/jocsgramatica/articles.html" class="tool-link">Jugar</a>
+            </li>
+            <li>
+                <h2 class="tool-title">2) Joc de les frases: endreça les paraules d'una frase</h2>
+                <p class="tool-description">Un joc per ordenar paraules i formar frases correctas.</p>
+                <a href="https://lromance.github.io/jocsgramatica/jocdelesfrases.html" class="tool-link">Jugar</a>
+            </li>
+            <li>
+                <h2 class="tool-title">3) Escolta les paraules i escriu</h2>
+                <p class="tool-description">Una eina per practicar la comprensió auditiva i l'escriptura de paraules.</p>
+                <a href="https://lromance.github.io/jocsgramatica/escoltaparaules.html" class="tool-link">Jugar</a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
