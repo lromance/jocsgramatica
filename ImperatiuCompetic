@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Imperatiu en Català: Document i Pràctica Interactiva (A1/A2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .document-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+        .document-card h1 {
+            border-bottom: 3px solid #6366f1; /* Indigo 500 */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .document-card h2 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1e3a8a; /* Blue 800 */
+        }
+        .document-card table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: collapse;
+        }
+        .document-card th, .document-card td {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .document-card th {
+            background-color: #e0e7ff; /* Indigo 100 */
+            font-weight: 600;
+        }
+        .document-card tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        /* Styles for Interactive Buttons */
+        .btn-option {
+            transition: all 0.2s;
+        }
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.3);
+        }
+        .btn-correct {
+            background-color: #10B981 !important; /* Green 500 */
+            color: white !important;
+        }
+        .btn-incorrect {
+            background-color: #EF4444 !important; /* Red 500 */
+            color: white !important;
+        }
+        /* Sticky sidebar for large screens */
+        @media (min-width: 1024px) {
+            .sticky-card {
+                position: -webkit-sticky;
+                position: sticky;
+                top: 2rem; /* Adjusted for aesthetic spacing */
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Títol Principal -->
+        <header class="text-center mb-10 p-6 bg-white rounded-xl shadow-lg">
+            <h1 class="text-4xl font-extrabold text-gray-800">📘 Recurs Compleix: L'Imperatiu Català i Pràctica Interactiva</h1>
+            <p class="text-xl text-gray-600 mt-2">Aprèn a donar ordres i consells en català. Nivell A1/A2.</p>
+        </header>
+
+        <div class="lg:flex lg:space-x-8">
+            <!-- COLUMNA ESQUERRA: CONTINGUT DEL DOCUMENT -->
+            <div class="lg:w-2/3 space-y-8">
+                <div class="document-card shadow-lg" id="document-content">
+                    <h1 class="text-3xl font-bold text-indigo-700">L'Imperatiu en Català (Nivell A1/A2)</h1>
+                    <p class="text-gray-700 leading-relaxed mb-6">
+                        L'imperatiu (en anglès: <strong>Imperative</strong>, en urdú: <strong>امر / Amr</strong>) és el mode verbal que fem servir per a <strong>donar ordres</strong>, <strong>fer peticions</strong>, o <strong>donar consells</strong> a algú de manera directa. És una forma essencial per a la comunicació pràctica.
+                    </p>
+
+                    <h2 class="text-2xl font-bold">1. Què és l'Imperatiu?</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        L'imperatiu és el mode verbal que fem servir per a <strong>donar ordres</strong>, <strong>fer peticions</strong>, o <strong>donar consells</strong> a algú. És un missatge directe: <strong>"Fes això!"</strong>
+                    </p>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Idioma</th><th>Exemple (Ordre Positiva)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Català</strong></td><td><strong>Mira</strong> el document.</td></tr>
+                            <tr><td><strong>Anglès</strong></td><td><strong>Look</strong> at the document.</td></tr>
+                            <tr><td><strong>Urdú</strong></td><td>Document <strong>dekho</strong>.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-2xl font-bold">2. Qui Rep l'Ordre? (Les Persones)</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        En català, només utilitzem l'imperatiu per a la segona persona:
+                    </p>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Persona (Català)</th><th>Formalitat</th><th>Ús</th><th>Exemple</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Tu</strong></td><td>Informal (una persona)</td><td>Per a amics, companys, o gent jove.</td><td><strong>Escolta</strong>!</td></tr>
+                            <tr><td><strong>Vosaltres</strong></td><td>Informal (més d'una persona)</td><td>Per a grups d'amics, companys.</td><td><strong>Escolteu</strong>!</td></tr>
+                            <tr><td><strong>Vostè</strong></td><td>Formal (una persona)</td><td>Per a caps, professors, o gent gran.</td><td><strong>Escolti</strong>!</td></tr>
+                            <tr><td><strong>Vostès</strong></td><td>Formal (més d'una persona)</td><td>Per a grups formals.</td><td><strong>Escoltinguin</strong>!</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="text-sm italic text-gray-500 mt-2">
+                        (Nota: En aquest nivell, ens centrem en les formes <strong>Tu</strong> i <strong>Vosaltres</strong>.)
+                    </p>
+
+                    <h2 class="text-2xl font-bold">3. Com es Fa l'Imperatiu Positiu (Fes-ho!)</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        Per formar l'imperatiu en català, seguim regles senzilles:
+                    </p>
+
+                    <h3 class="text-xl font-bold mt-4">3.1. Per a 'Tu' (Singular, Informal)</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        La forma de l'imperatiu per a 'tu' és gairebé sempre la mateixa forma que el <strong>Present de l'Indicatiu</strong> per a <strong>ell/ella</strong>.
+                    </p>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Verb</th><th>Forma Present (Ell/Ella)</th><th>Imperatiu (Tu)</th><th>Anglès</th><th>Urdú (Transliteració)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Parlar</td><td>Ell <strong>parla</strong></td><td><strong>Parla</strong> amb el cap!</td><td>Speak with the boss!</td><td>Boss se baat karo!</td></tr>
+                            <tr><td>Menjar</td><td>Ella <strong>menja</strong></td><td><strong>Menja</strong> la poma!</td><td>Eat the apple!</td><td>Seb khao!</td></tr>
+                            <tr><td>Servir</td><td>Ell <strong>serveix</strong></td><td><strong>Serveix</strong> l'aigua!</td><td>Serve the water!</td><td>Pani pesh karo!</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-xl font-bold mt-4">3.2. Per a 'Vosaltres' (Plural, Informal)</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Per a <strong>vosaltres</strong> fem servir les terminacions regulars <strong>-EU</strong> (per a 1a i 2a conjugació) o <strong>-IU</strong> (per a 3a conjugació).
+                    </p>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Conjugació</th><th>Infinitiu</th><th>Imperatiu (Vosaltres)</th><th>Anglès</th><th>Urdú (Transliteració)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1a (-AR)</td><td>Tanc<strong>ar</strong></td><td><strong>Tanqueu</strong> la finestra!</td><td>Close the window!</td><td>Khirki band karo!</td></tr>
+                            <tr><td>2a (-RE/ER)</td><td>B<strong>eure</strong></td><td><strong>Beveu</strong> aigua!</td><td>Drink water!</td><td>Paani piyo!</td></tr>
+                            <tr><td>3a (-IR)</td><td>Obri<strong>r</strong></td><td><strong>Obriu</strong> els llibres!</td><td>Open the books!</td><td>Kitabein kholo!</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-2xl font-bold">4. L'Imperatiu Negatiu (No ho Facis!)</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        Per dir a algú que <strong>NO faci</strong> alguna cosa, utilitzem el <strong>Subjuntiu Present</strong>.
+                    </p>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Ordre Positiva (Imperatiu)</th><th>Ordre Negativa (Subjuntiu)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Parla</strong> ràpid.</td><td><strong>No parlis</strong> tan ràpid.</td></tr>
+                            <tr><td><strong>Tanqueu</strong> la porta.</td><td><strong>No tanqueu</strong> la porta encara.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-2xl font-bold">5. Comparació Lingüística</h2>
+                    <table class="text-sm">
+                        <thead>
+                            <tr><th>Característica</th><th>Català</th><th>Anglès</th><th>Urdú</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Ordre Positiva</strong></td><td>Té formes verbals diferents (ex: <em>Parla</em>, <em>Parleu</em>, <em>Parli</em>).</td><td>Fa servir la forma base del verb (ex: <em>Speak</em>).</td><td>El verb canvia segons la formalitat (ex: <em>Bolo</em> (tu) vs. <em>Boliye</em> (vostè)).</td></tr>
+                            <tr><td><strong>Ordre Negativa</strong></td><td>Utilitza el mode Subjuntiu (ex: <em>No parlis</em>).</td><td>Utilitza el "Do not" + Verb base (ex: <em>Do not speak</em>).</td><td>Utilitza la partícula <em>mat</em> o <em>nahiñ</em> (ex: <em>Mat bolo</em>, No parlis).</td></tr>
+                            <tr><td><strong>Formalitat</strong></td><td>Sí. Diferència entre <strong>Tu</strong> (informal) i <strong>Vostè</strong> (formal).</td><td>No. Només amb 'Please' o amb el to de veu.</td><td>Sí. Diferència entre <em>tū</em> (molt íntim), <em>tum</em> (informal) i <em>āp</em> (formal).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-2xl font-bold" id="taula-verbs">6. Taula de Verbs d'Informàtica, Classe i Interacció</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        Verbs comuns per practicar l'imperatiu en l'àmbit digital i d'aula.
+                    </p>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="text-xs sm:text-sm">
+                            <thead>
+                                <tr>
+                                    <th>Infinitiu</th>
+                                    <th>Anglès</th>
+                                    <th>Forma 'Tu'</th>
+                                    <th>Forma 'Vosaltres'</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Accedir</strong></td><td>To access</td><td><strong>Accedeix</strong></td><td><strong>Accediu</strong></td></tr>
+                                <tr><td><strong>Actualitzar</strong></td><td>To update</td><td><strong>Actualitza</strong></td><td><strong>Actualitzeu</strong></td></tr>
+                                <tr><td><strong>Apagar</strong></td><td>To turn off</td><td><strong>Apaga</strong></td><td><strong>Apagueu</strong></td></tr>
+                                <tr><td><strong>Arrossegar</strong></td><td>To drag</td><td><strong>Arrossega</strong></td><td><strong>Arrossegueu</strong></td></tr>
+                                <tr><td><strong>Asseure's / Seure</strong></td><td>To sit down</td><td><strong>Seu</strong></td><td><strong>Seieu</strong></td></tr>
+                                <tr><td><strong>Aixecar la mà</strong></td><td>To raise hand</td><td><strong>Aixeca la mà</strong></td><td><strong>Aixequeu la mà</strong></td></tr>
+                                <tr><td><strong>Buscar</strong></td><td>To search</td><td><strong>Busca</strong></td><td><strong>Busqueu</strong></td></tr>
+                                <tr><td><strong>Callar</strong></td><td>To be quiet</td><td><strong>Calla</strong></td><td><strong>Calleu</strong></td></tr>
+                                <tr><td><strong>Clicar</strong></td><td>To click</td><td><strong>Clica</strong></td><td><strong>Cliqueu</strong></td></tr>
+                                <tr><td><strong>Compartir</strong></td><td>To share</td><td><strong>Comparteix</strong></td><td><strong>Compartiu</strong></td></tr>
+                                <tr><td><strong>Configurar</strong></td><td>To configure</td><td><strong>Configura</strong></td><td><strong>Configureu</strong></td></tr>
+                                <tr><td><strong>Connectar</strong></td><td>To connect</td><td><strong>Connecta</strong></td><td><strong>Connecteu</strong></td></tr>
+                                <tr><td><strong>Copiar</strong></td><td>To copy</td><td><strong>Copia</strong></td><td><strong>Copieu</strong></td></tr>
+                                <tr><td><strong>Deixar anar</strong></td><td>To release</td><td><strong>Deixa anar</strong></td><td><strong>Deixeu anar</strong></td></tr>
+                                <tr><td><strong>Descarregar</strong></td><td>To download</td><td><strong>Descarrega</strong></td><td><strong>Descarregueu</strong></td></tr>
+                                <tr><td><strong>Desfer</strong></td><td>To undo</td><td><strong>Desfés</strong></td><td><strong>Desfeu</strong></td></tr>
+                                <tr><td><strong>Desar</strong></td><td>To save</td><td><strong>Desa</strong></td><td><strong>Deseu</strong></td></tr>
+                                <tr><td><strong>Encendre</strong></td><td>To turn on</td><td><strong>Encén</strong></td><td><strong>Enceneu</strong></td></tr>
+                                <tr><td><strong>Enganxar</strong></td><td>To paste</td><td><strong>Enganxa</strong></td><td><strong>Enganxeu</strong></td></tr>
+                                <tr><td><strong>Entrar</strong></td><td>To enter</td><td><strong>Entra</strong></td><td><strong>Entreu</strong></td></tr>
+                                <tr><td><strong>Escanejar</strong></td><td>To scan</td><td><strong>Escaneja</strong></td><td><strong>Escanegeu</strong></td></tr>
+                                <tr><td><strong>Escoltar</strong></td><td>To listen</td><td><strong>Escolta</strong></td><td><strong>Escolteu</strong></td></tr>
+                                <tr><td><strong>Escriure</strong></td><td>To write</td><td><strong>Escriu</strong></td><td><strong>Escriviu</strong></td></tr>
+                                <tr><td><strong>Esborrar</strong></td><td>To erase</td><td><strong>Esborra</strong></td><td><strong>Esborreu</strong></td></tr>
+                                <tr><td><strong>Fer doble clic</strong></td><td>To double click</td><td><strong>Fes doble clic</strong></td><td><strong>Feu doble clic</strong></td></tr>
+                                <tr><td><strong>Fer silenci</strong></td><td>To be quiet</td><td><strong>Fes silenci</strong></td><td><strong>Feu silenci</strong></td></tr>
+                                <tr><td><strong>Imprimir</strong></td><td>To print</td><td><strong>Imprimeix</strong></td><td><strong>Imprimiu</strong></td></tr>
+                                <tr><td><strong>Instal·lar</strong></td><td>To install</td><td><strong>Instal·la</strong></td><td><strong>Instal·leu</strong></td></tr>
+                                <tr><td><strong>Llegir</strong></td><td>To read</td><td><strong>Llegeix</strong></td><td><strong>Llegiu</strong></td></tr>
+                                <tr><td><strong>Maximitzar</strong></td><td>To maximize</td><td><strong>Maximitza</strong></td><td><strong>Maximizeu</strong></td></tr>
+                                <tr><td><strong>Minimitzar</strong></td><td>To minimize</td><td><strong>Minimitza</strong></td><td><strong>Minimizeu</strong></td></tr>
+                                <tr><td><strong>Mirar</strong></td><td>To look</td><td><strong>Mira</strong></td><td><strong>Mireu</strong></td></tr>
+                                <tr><td><strong>Obrir</strong></td><td>To open</td><td><strong>Obre</strong></td><td><strong>Obriu</strong></td></tr>
+                                <tr><td><strong>Posar-se de peu</strong></td><td>To stand up</td><td><strong>Posa't de peu</strong></td><td><strong>Poseu-vos de peu</strong></td></tr>
+                                <tr><td><strong>Preguntar</strong></td><td>To ask</td><td><strong>Pregunta</strong></td><td><strong>Pregunteu</strong></td></tr>
+                                <tr><td><strong>Pujar</strong></td><td>To upload</td><td><strong>Puja</strong></td><td><strong>Pugeu</strong></td></tr>
+                                <tr><td><strong>Recarregar</strong></td><td>To reload</td><td><strong>Recarrega</strong></td><td><strong>Recarregueu</strong></td></tr>
+                                <tr><td><strong>Reiniciar</strong></td><td>To restart</td><td><strong>Reinicia</strong></td><td><strong>Reinicieu</strong></td></tr>
+                                <tr><td><strong>Seleccionar</strong></td><td>To select</td><td><strong>Selecciona</strong></td><td><strong>Seleccioneu</strong></td></tr>
+                                <tr><td><strong>Sortir</strong></td><td>To exit</td><td><strong>Surt</strong></td><td><strong>Sortiu</strong></td></tr>
+                                <tr><td><strong>Tancar</strong></td><td>To close</td><td><strong>Tanca</strong></td><td><strong>Tanqueu</strong></td></tr>
+                                <tr><td><strong>Venir</strong></td><td>To come</td><td><strong>Vine</strong></td><td><strong>Veniu</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DRETA: EXERCICIS INTERACTIUS -->
+            <div class="lg:w-1/3 mt-8 lg:mt-0">
+                <div class="card p-6 sm:p-8 sticky-card" id="app">
+                    <header class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">🗣️ Pràctica de l'Imperatiu</h2>
+                        <p class="text-gray-600 mt-1">Reforça els coneixements amb 3 tipus d'exercicis.</p>
+                        <a href="#document-content" class="text-sm text-indigo-500 hover:text-indigo-700 underline mt-1 block">Tornar a la Taula de Verbs</a>
+                    </header>
+
+                    <div id="content">
+                        <!-- El contingut interactiu es carregarà aquí amb JS -->
+                    </div>
+
+                    <!-- Estat i Puntuació -->
+                    <div id="feedback" class="text-center mt-6 p-3 rounded-lg font-semibold hidden"></div>
+
+                    <div class="mt-6 flex justify-between text-sm text-gray-600">
+                        <span id="score-display">Puntuació: 0</span>
+                        <span id="progress-display">Pregunta: 0/0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Dades dels Verbs (Integrades del document i l'exercici anterior) ---
+        const verbData = [
+            { cat: "Clicar", tu: "Clica", vos: "Cliqueu", en: "Click", def: "Seleccionar un element amb el ratolí." },
+            { cat: "Obrir", tu: "Obre", vos: "Obriu", en: "Open", def: "Iniciar un programa, arxiu o finestra." },
+            { cat: "Tancar", tu: "Tanca", vos: "Tanqueu", en: "Close", def: "Finalitzar un programa o una finestra." },
+            { cat: "Desar", tu: "Desa", vos: "Deseu", en: "Save", def: "Desar els canvis fets en un document." },
+            { cat: "Descarregar", tu: "Descarrega", vos: "Descarregueu", en: "Download", def: "Baixar un arxiu d'Internet." },
+            { cat: "Pujar", tu: "Puja", vos: "Pugeu", en: "Upload", def: "Enviar un arxiu des de l'ordinador a Internet." },
+            { cat: "Copiar", tu: "Copia", vos: "Copieu", en: "Copy", def: "Duplicar text o arxius." },
+            { cat: "Enganxar", tu: "Enganxa", vos: "Enganxeu", en: "Paste", def: "Col·locar el text o l'arxiu copiat." },
+            { cat: "Imprimir", tu: "Imprimeix", vos: "Imprimiu", en: "Print", def: "Passar el document a paper." },
+            { cat: "Buscar", tu: "Busca", vos: "Busqueu", en: "Search", def: "Trobar informació a Google o en un arxiu." },
+            { cat: "Encendre", tu: "Encén", vos: "Enceneu", en: "Turn on", def: "Posar en funcionament un dispositiu." },
+            { cat: "Apagar", tu: "Apaga", vos: "Apagueu", en: "Turn off", def: "Detenir el funcionament d'un dispositiu." },
+            { cat: "Desfer", tu: "Desfés", vos: "Desfeu", en: "Undo", def: "Tornar a l'estat anterior, cancel·lar una acció." },
+            { cat: "Recarregar", tu: "Recarrega", vos: "Recarregueu", en: "Reload", def: "Tornar a carregar el contingut d'una pàgina web." },
+            { cat: "Seleccionar", tu: "Selecciona", vos: "Seleccioneu", en: "Select", def: "Marcar un element o text per treballar-hi." },
+            { cat: "Instal·lar", tu: "Instal·la", vos: "Instal·leu", en: "Install", def: "Preparar un programa per utilitzar-lo a l'ordinador." },
+        ];
+
+        // --- 2. Estat de l'Aplicació i Funcions Utilitats ---
+        let gameState = {
+            currentQuiz: null, // 'vocab', 'def', 'grammar'
+            verbs: [], // Llista de verbs per al quiz actual
+            currentIndex: 0,
+            score: 0,
+            totalQuestions: 10,
+            allowClick: true,
+            userChoice: null,
+        };
+
+        const $ = selector => document.querySelector(selector);
+        const $$ = selector => document.querySelectorAll(selector);
+
+        /** Barreja un array */
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        };
+
+        /** Reseteja l'estat per a un nou quiz */
+        const resetGame = (quizType) => {
+            gameState.currentQuiz = quizType;
+            gameState.verbs = shuffleArray([...verbData]).slice(0, gameState.totalQuestions);
+            gameState.currentIndex = 0;
+            gameState.score = 0;
+            updateScoreDisplay();
+            updateProgressDisplay();
+            $('#feedback').classList.add('hidden');
+            nextQuestion();
+        };
+
+        /** Actualitza la puntuació a la UI */
+        const updateScoreDisplay = () => {
+            $('#score-display').textContent = `Puntuació: ${gameState.score}`;
+        };
+
+        /** Actualitza el progrés a la UI */
+        const updateProgressDisplay = () => {
+            $('#progress-display').textContent = `Pregunta: ${gameState.currentIndex + 1}/${gameState.totalQuestions}`;
+        };
+
+        /** Passa a la següent pregunta o mostra resultats */
+        const nextQuestion = () => {
+            gameState.allowClick = true;
+            $('#feedback').classList.add('hidden');
+            gameState.userChoice = null;
+
+            if (gameState.currentIndex < gameState.totalQuestions) {
+                updateProgressDisplay();
+                switch (gameState.currentQuiz) {
+                    case 'vocab': renderVocabQuiz(); break;
+                    case 'def': renderDefQuiz(); break;
+                    case 'grammar': renderGrammarQuiz(); break;
+                }
+            } else {
+                renderResults();
+            }
+        };
+
+        // --- 3. Funcions de Renderització de Pantalles ---
+
+        /** Pantalla d'inici amb selecció de joc */
+        const renderHome = () => {
+            const content = $('#content');
+            content.innerHTML = `
+                <h3 class="text-xl font-semibold text-center mb-6 text-indigo-700">Tria el teu Exercici</h3>
+                <div class="space-y-4">
+                    <button onclick="resetGame('vocab')" class="w-full btn-option bg-indigo-500 text-white p-4 rounded-lg font-bold shadow-md hover:bg-indigo-600">
+                        1. 🧠 Vocabulari: Català Imperatiu vs. Anglès
+                        <p class="text-sm font-normal opacity-90 mt-1">Què vol dir l'ordre catalana en anglès?</p>
+                    </button>
+                    <button onclick="resetGame('def')" class="w-full btn-option bg-sky-500 text-white p-4 rounded-lg font-bold shadow-md hover:bg-sky-600">
+                        2. 📝 Significat: Definició vs. Imperatiu
+                        <p class="text-sm font-normal opacity-90 mt-1">Quina ordre catalana s'ajusta a la definició?</p>
+                    </button>
+                    <button onclick="resetGame('grammar')" class="w-full btn-option bg-teal-500 text-white p-4 rounded-lg font-bold shadow-md hover:bg-teal-600">
+                        3. 🛠️ Gramàtica: Infinitiu a Imperatiu (Escriure)
+                        <p class="text-sm font-normal opacity-90 mt-1">Conjuga l'imperatiu de 'Tu' i 'Vosaltres' correctament.</p>
+                    </button>
+                </div>
+            `;
+            updateScoreDisplay();
+            $('#progress-display').textContent = "Pregunta: 0/0";
+        };
+
+        /** Renderitza el Quiz 1: Vocabulari (Català vs. Anglès) */
+        const renderVocabQuiz = () => {
+            const verb = gameState.verbs[gameState.currentIndex];
+            const useTu = Math.random() < 0.5;
+            const questionVerb = useTu ? verb.tu : verb.vos;
+            const correctAnswer = verb.en;
+
+            const distractors = shuffleArray(verbData.filter(v => v.en !== correctAnswer))
+                                    .slice(0, 3)
+                                    .map(v => v.en);
+            const options = shuffleArray([correctAnswer, ...distractors]);
+
+            const content = $('#content');
+            content.innerHTML = `
+                <p class="text-base text-gray-700 mb-4 text-center">Què significa l'ordre següent en anglès?</p>
+                <div class="text-center p-4 mb-6 bg-indigo-100 rounded-lg">
+                    <p class="text-3xl font-extrabold text-indigo-800">"${questionVerb}!"</p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 gap-4">
+                    ${options.map(opt => `
+                        <button onclick="checkVocabAnswer('${opt}', '${correctAnswer}')"
+                                class="w-full btn-option bg-gray-100 text-gray-800 p-3 rounded-lg font-semibold border-2 border-gray-300 hover:bg-indigo-50 hover:border-indigo-500">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+                <button id="next-btn" onclick="gameState.currentIndex++; nextQuestion()" class="w-full mt-6 bg-gray-400 text-white p-3 rounded-lg font-bold shadow-md cursor-not-allowed" disabled>
+                    Següent Pregunta
+                </button>
+            `;
+        };
+
+        /** Comprova la resposta del Quiz 1 i 2 (Opció múltiple) */
+        const checkVocabAnswer = (selected, correct) => {
+            if (!gameState.allowClick) return;
+            gameState.allowClick = false;
+
+            const buttons = $$('#options-container button');
+            let isCorrect = (selected === correct);
+
+            buttons.forEach(btn => {
+                const isSelected = btn.textContent.trim() === selected;
+                const isCorrectOption = btn.textContent.trim() === correct;
+
+                btn.disabled = true;
+                if (isSelected && isCorrect) {
+                    btn.classList.add('btn-correct');
+                    showFeedback('Correcte! ✅', 'bg-green-100 text-green-700');
+                } else if (isSelected && !isCorrect) {
+                    btn.classList.add('btn-incorrect');
+                    showFeedback(`Incorrecte. La resposta correcta és: ${correct} ❌`, 'bg-red-100 text-red-700');
+                } else if (isCorrectOption) {
+                    btn.classList.add('btn-correct');
+                }
+            });
+
+            if (isCorrect) {
+                gameState.score++;
+                updateScoreDisplay();
+            }
+            $('#next-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
+            $('#next-btn').classList.add('bg-indigo-500', 'hover:bg-indigo-600');
+            $('#next-btn').disabled = false;
+        };
+
+
+        /** Renderitza el Quiz 2: Definició (Definició vs. Imperatiu) */
+        const renderDefQuiz = () => {
+            const verb = gameState.verbs[gameState.currentIndex];
+            const useTu = Math.random() < 0.5;
+            const correctAnswer = useTu ? verb.tu : verb.vos;
+            const questionDef = verb.def;
+
+            const distractors = shuffleArray(verbData.filter(v => v.cat !== verb.cat))
+                                    .slice(0, 3)
+                                    .map(v => (useTu ? v.tu : v.vos));
+            const options = shuffleArray([correctAnswer, ...distractors]);
+
+            const content = $('#content');
+            content.innerHTML = `
+                <p class="text-base text-gray-700 mb-4 text-center">Quina ordre catalana s'ajusta a aquesta definició?</p>
+                <div class="text-center p-4 mb-6 bg-sky-100 rounded-lg">
+                    <p class="text-xl font-semibold text-sky-800">${questionDef}</p>
+                    <p class="text-sm mt-1 text-sky-600">(Forma de <strong>${useTu ? 'Tu' : 'Vosaltres'}</strong>)</p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 gap-4">
+                    ${options.map(opt => `
+                        <button onclick="checkVocabAnswer('${opt}', '${correctAnswer}')"
+                                class="w-full btn-option bg-gray-100 text-gray-800 p-3 rounded-lg font-semibold border-2 border-gray-300 hover:bg-sky-50 hover:border-sky-500">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+                <button id="next-btn" onclick="gameState.currentIndex++; nextQuestion()" class="w-full mt-6 bg-gray-400 text-white p-3 rounded-lg font-bold shadow-md cursor-not-allowed" disabled>
+                    Següent Pregunta
+                </button>
+            `;
+        };
+
+        /** Renderitza el Quiz 3: Gramàtica (Escriure) */
+        const renderGrammarQuiz = () => {
+            const verb = gameState.verbs[gameState.currentIndex];
+            const content = $('#content');
+            content.innerHTML = `
+                <p class="text-base text-gray-700 mb-4 text-center">Escriu l'imperatiu de l'infinitiu:</p>
+                <div class="text-center p-4 mb-6 bg-teal-100 rounded-lg">
+                    <p class="text-3xl font-extrabold text-teal-800">"${verb.cat}"</p>
+                </div>
+
+                <div id="grammar-form" class="space-y-4">
+                    <div>
+                        <label for="input-tu" class="block text-sm font-medium text-gray-700">Forma de <strong>TU</strong>:</label>
+                        <input type="text" id="input-tu" class="mt-1 block w-full border-2 border-gray-300 rounded-lg p-3 focus:border-teal-500 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label for="input-vos" class="block text-sm font-medium text-gray-700">Forma de <strong>VOSALTRES</strong>:</label>
+                        <input type="text" id="input-vos" class="mt-1 block w-full border-2 border-gray-300 rounded-lg p-3 focus:border-teal-500 focus:ring-teal-500">
+                    </div>
+                </div>
+
+                <div id="check-area" class="mt-6">
+                    <button id="check-btn" onclick="checkGrammarAnswer('${verb.tu}', '${verb.vos}')" class="w-full bg-teal-500 text-white p-3 rounded-lg font-bold shadow-md hover:bg-teal-600">
+                        Comprovar Resposta
+                    </button>
+                </div>
+
+                <button id="next-btn" onclick="gameState.currentIndex++; nextQuestion()" class="w-full mt-6 bg-gray-400 text-white p-3 rounded-lg font-bold shadow-md cursor-not-allowed hidden" disabled>
+                    Següent Pregunta
+                </button>
+            `;
+        };
+
+        /** Comprova la resposta del Quiz 3 (Escriure) */
+        const checkGrammarAnswer = (correctTu, correctVos) => {
+            if (!gameState.allowClick) return;
+            gameState.allowClick = false;
+
+            const inputTu = $('#input-tu');
+            const inputVos = $('#input-vos');
+            const userTu = inputTu.value.trim().toLowerCase().replace(/['-]/g, '');
+            const userVos = inputVos.value.trim().toLowerCase().replace(/['-]/g, '');
+            const cleanCorrectTu = correctTu.toLowerCase().replace(/['-]/g, '');
+            const cleanCorrectVos = correctVos.toLowerCase().replace(/['-]/g, '');
+
+            let tuCorrect = (userTu === cleanCorrectTu);
+            let vosCorrect = (userVos === cleanCorrectVos);
+            let totalCorrect = 0;
+
+            // Marcar camps
+            inputTu.disabled = true;
+            inputVos.disabled = true;
+
+            const markInput = (input, isCorrect, correctValue) => {
+                input.classList.remove('border-gray-300', 'focus:border-teal-500');
+                if (isCorrect) {
+                    input.classList.add('border-green-500', 'bg-green-50');
+                    totalCorrect++;
+                } else {
+                    input.classList.add('border-red-500', 'bg-red-50');
+                    // Add the correct answer for reference
+                    input.value = `${input.value} ❌ (Correcte: ${correctValue})`;
+                }
+            };
+
+            markInput(inputTu, tuCorrect, correctTu);
+            markInput(inputVos, vosCorrect, correctVos);
+
+            let feedbackMessage = '';
+            let feedbackClass = '';
+
+            if (totalCorrect === 2) {
+                gameState.score++;
+                feedbackMessage = 'Resposta Perfecta! ✅ Ambdós verbs són correctes.';
+                feedbackClass = 'bg-green-100 text-green-700';
+            } else if (totalCorrect === 1) {
+                feedbackMessage = 'Parcialment Correcte. ⚠️ Un verb és correcte.';
+                feedbackClass = 'bg-yellow-100 text-yellow-700';
+            } else {
+                feedbackMessage = 'Incorrecte. Cap verb és correcte. ❌';
+                feedbackClass = 'bg-red-100 text-red-700';
+            }
+
+            updateScoreDisplay();
+            showFeedback(feedbackMessage, feedbackClass);
+
+            $('#check-btn').classList.add('hidden');
+            $('#next-btn').classList.remove('hidden', 'bg-gray-400', 'cursor-not-allowed');
+            $('#next-btn').classList.add('bg-teal-500', 'hover:bg-teal-600');
+            $('#next-btn').disabled = false;
+        };
+
+
+        /** Pantalla de resultats finals */
+        const renderResults = () => {
+            const percentage = Math.round((gameState.score / gameState.totalQuestions) * 100);
+            let message = '';
+            let emoji = '';
+
+            if (percentage >= 80) {
+                message = "Excel·lent! El teu Imperatiu és molt sòlid. Ho has fet molt bé!";
+                emoji = "🎉";
+            } else if (percentage >= 50) {
+                message = "Bon resultat! Continua practicant, especialment les formes irregulars.";
+                emoji = "👍";
+            } else {
+                message = "Has d'enfortir els conceptes. Repassa la formació del 'Tu' i 'Vosaltres'.";
+                emoji = "✍️";
+            }
+
+            const content = $('#content');
+            content.innerHTML = `
+                <div class="text-center p-6 bg-blue-100 rounded-lg">
+                    <h3 class="text-3xl font-bold text-blue-700 mb-4">Resultats Finals ${emoji}</h3>
+                    <p class="text-xl mb-4">Puntuació: <span class="font-extrabold text-4xl">${gameState.score}/${gameState.totalQuestions}</span></p>
+                    <p class="text-2xl font-semibold mb-6">${percentage}% d'Encerts</p>
+                    <p class="text-gray-700 mb-8">${message}</p>
+                    <button onclick="renderHome()" class="w-full bg-indigo-500 text-white p-3 rounded-lg font-bold shadow-md hover:bg-indigo-600">
+                        Tornar al Menú
+                    </button>
+                </div>
+            `;
+            $('#feedback').classList.add('hidden');
+            $('#progress-display').textContent = "Joc Acabat";
+        };
+
+        /** Mostra missatge de feedback (correcte/incorrecte) */
+        const showFeedback = (message, className) => {
+            const feedbackDiv = $('#feedback');
+            feedbackDiv.textContent = message;
+            feedbackDiv.className = `text-center mt-6 p-3 rounded-lg font-semibold ${className}`;
+            feedbackDiv.classList.remove('hidden');
+        };
+
+        // --- 4. Inicialització ---
+        window.onload = renderHome;
+    </script>
+
+</body>
+</html>
