@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Síl·labes i Bingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f8fafc;
+            /* Prevent rubber-banding on iOS */
+            overscroll-behavior: none;
+        }
+
+        /* Custom Scrollbar */
+        .scroller::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroller::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .scroller::-webkit-scrollbar-thumb {
+            background: #94a3b8; 
+            border-radius: 4px;
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #334155;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Ensure header stays on top */
+        header {
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-teal-600 text-white p-3 shadow-md flex-none flex justify-between items-center">
+        <!-- Clickable Title to go Home -->
+        <div onclick="goToConfig()" class="flex items-center gap-2 cursor-pointer hover:opacity-90 transition select-none">
+            <i class="fas fa-layer-group text-2xl"></i>
+            <h1 class="text-xl md:text-2xl font-bold">Síl·labes & Bingo</h1>
+        </div>
+        
+        <!-- Explicit Home Button -->
+        <button onclick="goToConfig()" id="home-btn" class="hidden flex items-center bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg transition shadow font-semibold text-sm">
+            <i class="fas fa-home mr-2"></i> Configuració
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow overflow-hidden relative bg-slate-50">
+
+        <!-- VIEW 1: CONFIGURATION (The Hub) -->
+        <section id="view-config" class="h-full flex flex-col p-2 md:p-4 overflow-y-auto scroller">
+            
+            <div class="max-w-7xl mx-auto w-full space-y-4 pb-24">
+                
+                <!-- Info Box -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded shadow-sm text-sm text-blue-900">
+                    <p><i class="fas fa-info-circle mr-1"></i> Configura les tres posicions per formar les síl·labes. 
+                    Exemple: <strong>P</strong> (Pos 1) + <strong>L</strong> (Pos 2) + <strong>A</strong> (Pos 3) = PLA.</p>
+                </div>
+
+                <!-- Three Columns Configuration -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 h-full">
+                    <div id="col-1-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[60vh]"></div>
+                    <div id="col-2-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[60vh]"></div>
+                    <div id="col-3-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[60vh]"></div>
+                </div>
+
+                <!-- Global Options -->
+                <div class="bg-white p-4 rounded-xl shadow border border-slate-200 grid md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-700 mb-2 border-b pb-1">Visualització</h3>
+                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                            <input type="checkbox" id="opt-show-text" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                            <span>Mostrar text de la síl·laba</span>
+                        </label>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-700 mb-2 border-b pb-1">Àudio</h3>
+                        <div class="flex items-center justify-between gap-4">
+                            <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-slate-50 rounded flex-grow">
+                                <input type="checkbox" id="opt-play-audio" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                                <span>Llegir en veu alta</span>
+                            </label>
+                            <button onclick="testAudio()" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded text-slate-700 font-bold transition">
+                                <i class="fas fa-volume-up mr-1"></i> Provar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sticky Bottom Action Bar -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+                <div class="container mx-auto flex gap-3 justify-center max-w-4xl">
+                    <button onclick="generateAndGo('cards')" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-3 px-4 rounded-xl font-bold text-lg shadow transition transform active:scale-95 flex items-center justify-center">
+                        <i class="fas fa-th mr-2"></i> Generar Cartrons
+                    </button>
+                    <button onclick="generateAndGo('game')" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 rounded-xl font-bold text-lg shadow transition transform active:scale-95 flex items-center justify-center">
+                        <i class="fas fa-play mr-2"></i> Jugar al Bingo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CARDS (Cartrons) -->
+        <section id="view-cards" class="hidden h-full flex flex-col p-4 overflow-hidden">
+            <div class="max-w-6xl mx-auto w-full flex flex-col h-full">
+                
+                <div class="flex justify-between items-center mb-4 flex-none bg-white p-3 rounded-lg shadow-sm border">
+                    <h2 class="text-xl md:text-2xl font-bold text-indigo-700 flex items-center">
+                        <i class="fas fa-th-large mr-2"></i> Cartrons
+                    </h2>
+                    <button onclick="generateCardsView()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-lg font-bold transition flex items-center shadow-sm">
+                        <i class="fas fa-sync-alt mr-2"></i> Nous Cartrons
+                    </button>
+                </div>
+
+                <div class="flex-grow overflow-y-auto scroller pb-20 p-1">
+                    <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cards injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME (Bingo Caller) -->
+        <section id="view-game" class="hidden h-full flex flex-col p-4 overflow-y-auto scroller">
+            <div class="max-w-2xl mx-auto w-full min-h-full flex flex-col items-center">
+                
+                <!-- Game Stats & Controls -->
+                <div class="w-full flex justify-between items-center mb-4 flex-none bg-white p-3 rounded-lg shadow-sm border">
+                    <div class="text-slate-600 font-bold flex items-center">
+                        <i class="fas fa-layer-group mr-2 text-teal-500"></i>
+                        Queden: <span id="remaining-count" class="text-teal-700 text-xl ml-2">0</span>
+                    </div>
+                    <button onclick="resetGame()" class="bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold transition shadow-sm">
+                        <i class="fas fa-redo mr-2"></i> Reiniciar
+                    </button>
+                </div>
+
+                <!-- Main Display Area -->
+                <div class="flex-grow w-full flex items-center justify-center mb-6">
+                    <div class="relative w-full aspect-square max-h-[45vh] bg-white rounded-3xl shadow-xl border-4 border-teal-50 flex items-center justify-center overflow-hidden transition-all duration-300">
+                        
+                        <!-- Initial State -->
+                        <div id="game-start-msg" class="text-center text-slate-400 p-6">
+                            <div class="mb-4 bg-slate-100 p-6 rounded-full inline-block">
+                                <i class="fas fa-hand-pointer text-5xl animate-bounce text-slate-300"></i>
+                            </div>
+                            <p class="text-xl font-bold">Prem el botó per començar</p>
+                        </div>
+
+                        <!-- Syllable Display -->
+                        <div id="game-content" class="hidden flex flex-col items-center justify-center w-full h-full p-2">
+                            <h1 id="syllable-display" class="text-[18vw] md:text-[9rem] font-bold text-slate-800 leading-none text-center break-all select-none">
+                                <!-- Text -->
+                            </h1>
+                            <div id="audio-icon" class="hidden mt-2 text-teal-500 animate-pulse">
+                                <i class="fas fa-volume-high text-4xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Text Mode -->
+                        <div id="game-hidden-icon" class="hidden flex flex-col items-center text-teal-400 p-6">
+                            <i class="fas fa-ear-listen text-9xl mb-4 drop-shadow-md"></i>
+                            <p class="text-3xl font-bold">Escolta!</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Big Action Button -->
+                <div class="w-full flex-none pb-6">
+                    <button onclick="drawNext()" id="btn-draw" class="w-full bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-3xl py-6 rounded-2xl shadow-xl border-b-4 border-teal-800 transition transform active:scale-[0.98] active:border-b-0 active:translate-y-1 flex items-center justify-center">
+                        <span class="mr-3">Treure Bola</span> <i class="fas fa-random"></i>
+                    </button>
+                </div>
+
+                <!-- History -->
+                <div class="w-full flex-none h-20 bg-white rounded-xl flex items-center px-4 space-x-3 overflow-hidden border border-slate-200 shadow-sm mb-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded">Historial</span>
+                    <div id="history-row" class="flex space-x-2 overflow-x-auto scroller w-full py-2 px-1">
+                        <!-- History items -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Warning -->
+    <div id="modal-warning" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all scale-100">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation text-orange-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Poca Varietat</h3>
+            <p id="modal-msg" class="text-slate-600 mb-6 text-sm leading-relaxed">Missatge d'error</p>
+            <button onclick="document.getElementById('modal-warning').classList.add('hidden')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition">
+                Entesos
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- DATA SETS ---
+    const data = {
+        vowels: ['a', 'e', 'i', 'o', 'u', 'ü'],
+        consonants: ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z'],
+        digraphs: ['ny', 'll', 'rr', 'ss', 'tx', 'tg', 'tj', 'tz', 'ix', 'qu', 'gu', 'ig']
+    };
+
+    // State
+    const state = {
+        pool: [],
+        deck: [],
+        history: [],
+        settings: {
+            showText: true,
+            playAudio: true
+        }
+    };
+
+    // --- INITIALIZATION ---
+    
+    function init() {
+        renderColumn(1, 'Posició 1 (Inici)', 'teal-600');
+        renderColumn(2, 'Posició 2 (Mig)', 'indigo-600');
+        renderColumn(3, 'Posició 3 (Final)', 'pink-600');
+        
+        // --- CONFIGURACIÓ PER DEFECTE ---
+        toggleGroup(1, 'consonants', true);
+        document.getElementById('cb-2-none').checked = true;
+        toggleGroup(3, 'vowels', true);
+
+        // Preload voices
+        if (window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+        }
+    }
+
+    // --- UI BUILDER ---
+
+    function renderColumn(colId, title, colorClass) {
+        const container = document.getElementById(`col-${colId}-container`);
+        const baseColor = colorClass.split('-')[0]; // e.g. 'teal'
+        
+        let html = `
+            <div class="p-3 bg-${baseColor}-50 border-b border-slate-100 rounded-t-xl column-header sticky top-0 z-10 flex justify-between items-center">
+                <h2 class="font-bold text-${colorClass} text-lg">${title}</h2>
+                <div class="text-xs text-slate-400 font-medium bg-white px-2 py-1 rounded border">Col ${colId}</div>
+            </div>
+            <div class="p-3 flex-grow overflow-y-auto scroller space-y-5">
+                
+                <!-- Special Option: None -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-${baseColor}-300 transition-colors">
+                    <label class="flex items-center space-x-3 cursor-pointer w-full">
+                        <input type="checkbox" id="cb-${colId}-none" value="" class="w-6 h-6 text-${colorClass} rounded border-gray-300 focus:ring-${colorClass}">
+                        <span class="font-bold text-slate-700">Cap lletra (Buit)</span>
+                    </label>
+                </div>
+
+                <!-- Vowels -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vocals</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'vowels', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Totes</button>
+                            <button onclick="toggleGroup(${colId}, 'vowels', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.vowels.map(l => createCheckbox(colId, l, 'vowels', colorClass)).join('')}
+                    </div>
+                </div>
+
+                 <!-- Consonants -->
+                 <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Consonants</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'consonants', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Totes</button>
+                            <button onclick="toggleGroup(${colId}, 'consonants', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.consonants.map(l => createCheckbox(colId, l, 'consonants', colorClass)).join('')}
+                    </div>
+                </div>
+
+                 <!-- Digraphs -->
+                 <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dígrafs</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'digraphs', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Tots</button>
+                            <button onclick="toggleGroup(${colId}, 'digraphs', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.digraphs.map(l => createCheckbox(colId, l, 'digraphs', colorClass)).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    function createCheckbox(colId, val, group, colorClass) {
+        return `
+            <label class="flex items-center justify-center space-x-2 p-2 border border-slate-100 rounded-lg hover:bg-${colorClass.split('-')[0]}-50 cursor-pointer bg-white transition-all shadow-sm">
+                <input type="checkbox" value="${val}" data-group="${group}" class="col-${colId}-check w-4 h-4 text-${colorClass} rounded border-gray-300 focus:ring-0">
+                <span class="font-bold text-slate-700 text-lg">${val}</span>
+            </label>
+        `;
+    }
+
+    function toggleGroup(colId, groupName, status) {
+        const checkboxes = document.querySelectorAll(`.col-${colId}-check[data-group="${groupName}"]`);
+        checkboxes.forEach(cb => cb.checked = status);
+    }
+
+    // --- NAVIGATION ---
+
+    function switchView(viewName) {
+        stopAudio();
+
+        // 1. Hide all main sections
+        const views = ['config', 'cards', 'game'];
+        views.forEach(v => {
+            const el = document.getElementById(`view-${v}`);
+            if (el) el.classList.add('hidden');
+        });
+        
+        // 2. Show target section
+        const targetEl = document.getElementById(`view-${viewName}`);
+        if (targetEl) {
+            targetEl.classList.remove('hidden');
+            targetEl.scrollTop = 0;
+        }
+        
+        // 3. Toggle Home Button visibility
+        const homeBtn = document.getElementById('home-btn');
+        if (viewName === 'config') {
+            if (homeBtn) homeBtn.classList.add('hidden');
+        } else {
+            if (homeBtn) homeBtn.classList.remove('hidden');
+        }
+    }
+
+    function goToConfig() {
+        switchView('config');
+    }
+
+    // --- GENERATION LOGIC ---
+
+    function getColumnSelection(colId) {
+        const useNone = document.getElementById(`cb-${colId}-none`).checked;
+        const checkboxes = document.querySelectorAll(`.col-${colId}-check:checked`);
+        const letters = Array.from(checkboxes).map(cb => cb.value);
+        if (useNone) letters.push('');
+        return letters;
+    }
+
+    function generatePool() {
+        const p1 = getColumnSelection(1);
+        const p2 = getColumnSelection(2);
+        const p3 = getColumnSelection(3);
+
+        if (p1.length === 0 || p2.length === 0 || p3.length === 0) return [];
+
+        let pool = new Set();
+        p1.forEach(l1 => {
+            p2.forEach(l2 => {
+                p3.forEach(l3 => {
+                    const combined = l1 + l2 + l3;
+                    if (combined.trim().length > 0) pool.add(combined);
+                });
+            });
+        });
+        return Array.from(pool);
+    }
+
+    function generateAndGo(target) {
+        const pool = generatePool();
+        if (pool.length < 15) {
+            document.getElementById('modal-msg').innerHTML = `Has de seleccionar més opcions.<br>Es necessiten almenys 15 combinacions possibles.<br><strong>Actualment en tens: ${pool.length}</strong>`;
+            document.getElementById('modal-warning').classList.remove('hidden');
+            return;
+        }
+        state.pool = pool;
+        state.settings.showText = document.getElementById('opt-show-text').checked;
+        state.settings.playAudio = document.getElementById('opt-play-audio').checked;
+
+        if (target === 'cards') {
+            generateCardsView();
+            switchView('cards');
+        } else {
+            initGame();
+            switchView('game');
+        }
+    }
+
+    // --- CARDS VIEW ---
+
+    function generateCardsView() {
+        const container = document.getElementById('cards-grid');
+        container.innerHTML = '';
+        const pool = [...state.pool];
+
+        for (let i = 0; i < 6; i++) {
+            let cardItems = [];
+            let tempPool = [...pool];
+            while(cardItems.length < 15) {
+                if (tempPool.length === 0) tempPool = [...pool];
+                const randIndex = Math.floor(Math.random() * tempPool.length);
+                const item = tempPool.splice(randIndex, 1)[0];
+                if (pool.length >= 15) cardItems.push(item);
+                else cardItems.push(item);
+            }
+            cardItems.sort(() => 0.5 - Math.random());
+
+            const cardDiv = document.createElement('div');
+            cardDiv.className = "bg-white p-3 md:p-4 rounded-xl shadow-md border border-slate-200 relative";
+            let gridHtml = `<div class="grid grid-cols-5 gap-1 md:gap-2">`;
+            cardItems.forEach(item => {
+                const fontSizeClass = item.length > 3 ? 'text-xs md:text-sm' : 'text-base md:text-xl';
+                gridHtml += `<div class="bingo-cell ${fontSizeClass}">${item}</div>`;
+            });
+            gridHtml += `</div>`;
+            cardDiv.innerHTML = `
+                <div class="absolute -top-3 left-3 bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded shadow z-10">Cartró ${i+1}</div>
+                ${gridHtml}
+            `;
+            container.appendChild(cardDiv);
+        }
+    }
+
+    // --- GAME LOGIC ---
+
+    function initGame() {
+        state.deck = [...state.pool].sort(() => 0.5 - Math.random());
+        state.history = [];
+        document.getElementById('remaining-count').innerText = state.deck.length;
+        document.getElementById('game-start-msg').classList.remove('hidden');
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('game-hidden-icon').classList.add('hidden');
+        document.getElementById('history-row').innerHTML = '';
+        const btn = document.getElementById('btn-draw');
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'bg-slate-400', 'cursor-not-allowed');
+        btn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+        btn.innerHTML = `<span class="mr-3">Treure Bola</span> <i class="fas fa-random"></i>`;
+    }
+
+    function resetGame() {
+        if(confirm("Vols reiniciar la partida amb les mateixes síl·labes?")) {
+            initGame();
+        }
+    }
+
+    function drawNext() {
+        if (state.deck.length === 0) return;
+        const item = state.deck.pop();
+        state.history.unshift(item);
+        if (state.history.length > 20) state.history.pop();
+        updateGameDisplay(item);
+        updateHistoryUI();
+        document.getElementById('remaining-count').innerText = state.deck.length;
+        if (state.settings.playAudio) playSyllableAudio(item);
+        if (state.deck.length === 0) {
+            const btn = document.getElementById('btn-draw');
+            btn.innerHTML = `<span>Fi del Joc!</span>`;
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'bg-slate-400', 'cursor-not-allowed');
+            btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+        }
+    }
+
+    function updateGameDisplay(text) {
+        document.getElementById('game-start-msg').classList.add('hidden');
+        const contentDiv = document.getElementById('game-content');
+        const textEl = document.getElementById('syllable-display');
+        const hiddenIcon = document.getElementById('game-hidden-icon');
+        
+        if (state.settings.showText) {
+            contentDiv.classList.remove('hidden');
+            hiddenIcon.classList.add('hidden');
+            textEl.innerText = text;
+            textEl.className = "text-[18vw] md:text-[9rem] font-bold text-slate-800 leading-none text-center break-all select-none transform transition-all duration-300 scale-50 opacity-0";
+            requestAnimationFrame(() => {
+                textEl.className = "text-[18vw] md:text-[9rem] font-bold text-indigo-600 leading-none text-center break-all select-none transform transition-all duration-300 scale-100 opacity-100";
+            });
+        } else {
+            contentDiv.classList.add('hidden');
+            hiddenIcon.classList.remove('hidden');
+            hiddenIcon.classList.remove('animate-pulse');
+            void hiddenIcon.offsetWidth; 
+            hiddenIcon.classList.add('animate-pulse');
+        }
+    }
+
+    function updateHistoryUI() {
+        const row = document.getElementById('history-row');
+        row.innerHTML = state.history.map((item, idx) => `
+            <div class="flex-none w-14 h-14 flex items-center justify-center rounded-full border-2 font-bold text-lg shadow-sm transition-all
+                ${idx === 0 ? 'bg-teal-100 border-teal-500 text-teal-800 scale-105' : 'bg-white border-slate-200 text-slate-400 opacity-70'}">
+                ${item}
+            </div>
+        `).join('');
+    }
+
+    // --- AUDIO SYSTEM ---
+
+    function getCatalanVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        let voice = voices.find(v => v.lang === 'ca-ES' || v.lang === 'ca_ES');
+        if (!voice) voice = voices.find(v => v.name.includes('Catalan'));
+        if (!voice) voice = voices.find(v => v.lang.includes('ca'));
+        if (!voice) voice = voices.find(v => v.lang.includes('es')); 
+        return voice;
+    }
+
+    function playSyllableAudio(text) {
+        window.speechSynthesis.cancel(); 
+
+        let speakText = text.toLowerCase().trim();
+
+        // --- CORRECCIONS FONÈTIQUES (Anti-Sigles) ---
+        // Afegeixo mapes per "enganyar" el sintetitzador i que no llegeixi sigles.
+        // Afegir accents (tildes) sol forçar la lectura literal.
+        const corrections = {
+            'vo': 'vó',   // Evita "Versió Original"
+            'ki': 'kí',   // Evita "Kiribati"
+            'ku': 'kú',
+            'ka': 'ká',
+            'ke': 'ké',
+            'ko': 'kó',
+            'wc': 'vàter', 
+            'cd': 'cedé',
+            'pc': 'pecé',
+            'tv': 'tevé'
+        };
+
+        if (corrections[speakText]) {
+            speakText = corrections[speakText];
+        }
+
+        const u = new SpeechSynthesisUtterance(speakText);
+        u.lang = 'ca-ES';
+        u.rate = 0.7; 
+        u.pitch = 1.05;
+        
+        const voice = getCatalanVoice();
+        if (voice) {
+            u.voice = voice;
+        }
+
+        const indicator = document.getElementById('audio-icon');
+        if (state.settings.showText) indicator.classList.remove('hidden');
+
+        u.onend = () => {
+             if (state.settings.showText) indicator.classList.add('hidden');
+        };
+
+        window.speechSynthesis.speak(u);
+    }
+
+    function testAudio() {
+        playSyllableAudio("Síl·laba");
+    }
+
+    function stopAudio() {
+        window.speechSynthesis.cancel();
+    }
+
+    init();
+
+</script>
+</body>
+</html>
