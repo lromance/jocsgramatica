@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Síl·labes i Bingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f8fafc;
+            /* Prevent rubber-banding on iOS */
+            overscroll-behavior: none;
+        }
+
+        /* Custom Scrollbar */
+        .scroller::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroller::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .scroller::-webkit-scrollbar-thumb {
+            background: #94a3b8; 
+            border-radius: 4px;
+        }
+
+        /* Ensure header stays on top */
+        header {
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-teal-600 text-white p-3 shadow-md flex-none flex justify-between items-center">
+        <!-- Clickable Title to go Home -->
+        <div onclick="goToConfig()" class="flex items-center gap-2 cursor-pointer hover:opacity-90 transition select-none">
+            <i class="fas fa-layer-group text-2xl"></i>
+            <h1 class="text-xl md:text-2xl font-bold">Síl·labes & Bingo</h1>
+        </div>
+        
+        <!-- Explicit Home Button -->
+        <button onclick="goToConfig()" id="home-btn" class="hidden flex items-center bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg transition shadow font-semibold text-sm">
+            <i class="fas fa-home mr-2"></i> Configuració
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow overflow-hidden relative bg-slate-50">
+
+        <!-- VIEW 1: CONFIGURATION (The Hub) -->
+        <section id="view-config" class="h-full flex flex-col p-2 md:p-4 overflow-y-auto scroller">
+            
+            <!-- Added extra bottom padding (pb-32) so content isn't hidden by fixed footer -->
+            <div class="max-w-7xl mx-auto w-full space-y-4 pb-32">
+                
+                <!-- Info Box -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded shadow-sm text-sm text-blue-900">
+                    <p><i class="fas fa-info-circle mr-1"></i> Configura les tres posicions per formar les síl·labes. 
+                    Exemple: <strong>P</strong> (Pos 1) + <strong>L</strong> (Pos 2) + <strong>A</strong> (Pos 3) = PLA.</p>
+                </div>
+
+                <!-- Global Options (MOVED TO TOP) -->
+                <div class="bg-white p-3 md:p-4 rounded-xl shadow border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <div class="flex items-center justify-between md:justify-start gap-4">
+                        <h3 class="font-bold text-slate-700 text-sm md:text-base whitespace-nowrap"><i class="fas fa-eye text-teal-500 mr-2"></i>Visualització:</h3>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 px-3 py-2 rounded hover:bg-slate-100 transition border border-slate-100 w-full md:w-auto">
+                            <input type="checkbox" id="opt-show-text" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                            <span class="text-sm font-semibold">Mostrar text</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between md:justify-start gap-4">
+                        <h3 class="font-bold text-slate-700 text-sm md:text-base whitespace-nowrap"><i class="fas fa-volume-up text-teal-500 mr-2"></i>Àudio:</h3>
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 px-3 py-2 rounded hover:bg-slate-100 transition border border-slate-100 flex-grow md:flex-grow-0">
+                                <input type="checkbox" id="opt-play-audio" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                                <span class="text-sm font-semibold">Llegir veu</span>
+                            </label>
+                            <button onclick="testAudio()" class="text-xs bg-teal-100 hover:bg-teal-200 text-teal-800 px-3 py-2 rounded font-bold transition">
+                                Provar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Three Columns Configuration -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                    <div id="col-1-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[55vh]"></div>
+                    <div id="col-2-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[55vh]"></div>
+                    <div id="col-3-container" class="bg-white rounded-xl shadow border border-slate-200 flex flex-col h-[400px] md:h-[55vh]"></div>
+                </div>
+
+            </div>
+
+            <!-- Sticky Bottom Action Bar -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+                <div class="container mx-auto flex gap-3 justify-center max-w-4xl">
+                    <button onclick="handleGenerateCardsClick()" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-3 px-4 rounded-xl font-bold text-lg shadow transition transform active:scale-95 flex items-center justify-center">
+                        <i class="fas fa-print mr-2"></i> Imprimir Cartrons
+                    </button>
+                    <button onclick="generateAndGo('game')" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 rounded-xl font-bold text-lg shadow transition transform active:scale-95 flex items-center justify-center">
+                        <i class="fas fa-play mr-2"></i> Jugar al Bingo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAME (Bingo Caller) -->
+        <section id="view-game" class="hidden h-full flex flex-col p-4 overflow-y-auto scroller">
+            <div class="max-w-2xl mx-auto w-full min-h-full flex flex-col items-center">
+                
+                <!-- Game Stats & Controls -->
+                <div class="w-full flex justify-between items-center mb-4 flex-none bg-white p-3 rounded-lg shadow-sm border">
+                    <div class="text-slate-600 font-bold flex items-center">
+                        <i class="fas fa-layer-group mr-2 text-teal-500"></i>
+                        Queden: <span id="remaining-count" class="text-teal-700 text-xl ml-2">0</span>
+                    </div>
+                    <button onclick="resetGame()" class="bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold transition shadow-sm">
+                        <i class="fas fa-redo mr-2"></i> Reiniciar
+                    </button>
+                </div>
+
+                <!-- Main Display Area -->
+                <div class="flex-grow w-full flex items-center justify-center mb-6">
+                    <div class="relative w-full aspect-square max-h-[45vh] bg-white rounded-3xl shadow-xl border-4 border-teal-50 flex items-center justify-center overflow-hidden transition-all duration-300">
+                        
+                        <!-- Initial State -->
+                        <div id="game-start-msg" class="text-center text-slate-400 p-6">
+                            <div class="mb-4 bg-slate-100 p-6 rounded-full inline-block">
+                                <i class="fas fa-hand-pointer text-5xl animate-bounce text-slate-300"></i>
+                            </div>
+                            <p class="text-xl font-bold">Prem el botó per començar</p>
+                        </div>
+
+                        <!-- Syllable Display -->
+                        <div id="game-content" class="hidden flex flex-col items-center justify-center w-full h-full p-2">
+                            <h1 id="syllable-display" class="text-[18vw] md:text-[9rem] font-bold text-slate-800 leading-none text-center break-all select-none">
+                                <!-- Text -->
+                            </h1>
+                            <div id="audio-icon" class="hidden mt-2 text-teal-500 animate-pulse">
+                                <i class="fas fa-volume-high text-4xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Text Mode -->
+                        <div id="game-hidden-icon" class="hidden flex flex-col items-center text-teal-400 p-6">
+                            <i class="fas fa-ear-listen text-9xl mb-4 drop-shadow-md"></i>
+                            <p class="text-3xl font-bold">Escolta!</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Big Action Button -->
+                <div class="w-full flex-none pb-6">
+                    <button onclick="drawNext()" id="btn-draw" class="w-full bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-3xl py-6 rounded-2xl shadow-xl border-b-4 border-teal-800 transition transform active:scale-[0.98] active:border-b-0 active:translate-y-1 flex items-center justify-center">
+                        <span class="mr-3">Treure Bola</span> <i class="fas fa-random"></i>
+                    </button>
+                </div>
+
+                <!-- History -->
+                <div class="w-full flex-none h-20 bg-white rounded-xl flex items-center px-4 space-x-3 overflow-hidden border border-slate-200 shadow-sm mb-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded">Historial</span>
+                    <div id="history-row" class="flex space-x-2 overflow-x-auto scroller w-full py-2 px-1">
+                        <!-- History items -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Quantity -->
+    <div id="modal-quantity" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all scale-100">
+            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-copy text-indigo-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Imprimir Cartrons</h3>
+            <p class="text-slate-600 mb-4 text-sm">Quants cartrons vols generar?</p>
+            
+            <div class="flex justify-center items-center gap-3 mb-6">
+                <button onclick="adjustQty(-1)" class="w-10 h-10 rounded-full bg-slate-200 hover:bg-slate-300 font-bold text-lg">-</button>
+                <input type="number" id="qty-input" value="4" min="1" max="100" class="w-20 text-center border-2 border-indigo-100 rounded-lg py-2 text-xl font-bold focus:border-indigo-500 focus:outline-none">
+                <button onclick="adjustQty(1)" class="w-10 h-10 rounded-full bg-slate-200 hover:bg-slate-300 font-bold text-lg">+</button>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-4">Es generaran en format A4 Horitzontal (4 per pàgina).</p>
+
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('modal-quantity').classList.add('hidden')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition">
+                    Cancel·lar
+                </button>
+                <button onclick="confirmPrint()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                    Generar i Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Warning -->
+    <div id="modal-warning" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all scale-100">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation text-orange-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Poca Varietat</h3>
+            <p id="modal-msg" class="text-slate-600 mb-6 text-sm leading-relaxed">Missatge d'error</p>
+            <button onclick="document.getElementById('modal-warning').classList.add('hidden')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition">
+                Entesos
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- DATA SETS ---
+    const data = {
+        vowels: ['a', 'e', 'i', 'o', 'u'],
+        consonants: ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z'],
+        digraphs: ['ny', 'll', 'rr', 'ss', 'tx', 'tg', 'tj', 'tz', 'ix', 'qu', 'gu', 'ig', 'qü', 'gü']
+    };
+
+    // State
+    const state = {
+        pool: [],
+        deck: [],
+        history: [],
+        settings: {
+            showText: true,
+            playAudio: true
+        }
+    };
+
+    // --- INITIALIZATION ---
+    function init() {
+        renderColumn(1, 'Posició 1 (Inici)', 'teal-600');
+        renderColumn(2, 'Posició 2 (Mig)', 'indigo-600');
+        renderColumn(3, 'Posició 3 (Final)', 'pink-600');
+        
+        // Default Config
+        toggleGroup(1, 'consonants', true);
+        document.getElementById('cb-2-none').checked = true;
+        toggleGroup(3, 'vowels', true);
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+        }
+    }
+
+    // --- UI BUILDER ---
+    function renderColumn(colId, title, colorClass) {
+        const container = document.getElementById(`col-${colId}-container`);
+        const baseColor = colorClass.split('-')[0];
+        
+        let html = `
+            <div class="p-3 bg-${baseColor}-50 border-b border-slate-100 rounded-t-xl column-header sticky top-0 z-10 flex justify-between items-center">
+                <h2 class="font-bold text-${colorClass} text-lg">${title}</h2>
+                <div class="text-xs text-slate-400 font-medium bg-white px-2 py-1 rounded border">Col ${colId}</div>
+            </div>
+            <div class="p-3 flex-grow overflow-y-auto scroller space-y-5">
+                
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-${baseColor}-300 transition-colors">
+                    <label class="flex items-center space-x-3 cursor-pointer w-full">
+                        <input type="checkbox" id="cb-${colId}-none" value="" class="w-6 h-6 text-${colorClass} rounded border-gray-300 focus:ring-${colorClass}">
+                        <span class="font-bold text-slate-700">Cap lletra (Buit)</span>
+                    </label>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vocals</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'vowels', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Totes</button>
+                            <button onclick="toggleGroup(${colId}, 'vowels', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.vowels.map(l => createCheckbox(colId, l, 'vowels', colorClass)).join('')}
+                    </div>
+                </div>
+
+                 <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Consonants</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'consonants', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Totes</button>
+                            <button onclick="toggleGroup(${colId}, 'consonants', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.consonants.map(l => createCheckbox(colId, l, 'consonants', colorClass)).join('')}
+                    </div>
+                </div>
+
+                 <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dígrafs</span>
+                        <div class="flex gap-1">
+                            <button onclick="toggleGroup(${colId}, 'digraphs', true)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Tots</button>
+                            <button onclick="toggleGroup(${colId}, 'digraphs', false)" class="text-[10px] uppercase font-bold px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-100">Cap</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${data.digraphs.map(l => createCheckbox(colId, l, 'digraphs', colorClass)).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    function createCheckbox(colId, val, group, colorClass) {
+        return `
+            <label class="flex items-center justify-center space-x-2 p-2 border border-slate-100 rounded-lg hover:bg-${colorClass.split('-')[0]}-50 cursor-pointer bg-white transition-all shadow-sm">
+                <input type="checkbox" value="${val}" data-group="${group}" class="col-${colId}-check w-4 h-4 text-${colorClass} rounded border-gray-300 focus:ring-0">
+                <span class="font-bold text-slate-700 text-lg">${val}</span>
+            </label>
+        `;
+    }
+
+    function toggleGroup(colId, groupName, status) {
+        const checkboxes = document.querySelectorAll(`.col-${colId}-check[data-group="${groupName}"]`);
+        checkboxes.forEach(cb => cb.checked = status);
+    }
+
+    // --- NAVIGATION ---
+    function switchView(viewName) {
+        stopAudio();
+        const views = ['config', 'game'];
+        views.forEach(v => {
+            const el = document.getElementById(`view-${v}`);
+            if (el) el.classList.add('hidden');
+        });
+        
+        const targetEl = document.getElementById(`view-${viewName}`);
+        if (targetEl) {
+            targetEl.classList.remove('hidden');
+            targetEl.scrollTop = 0;
+        }
+        
+        const homeBtn = document.getElementById('home-btn');
+        if (viewName === 'config') {
+            if (homeBtn) homeBtn.classList.add('hidden');
+        } else {
+            if (homeBtn) homeBtn.classList.remove('hidden');
+        }
+    }
+
+    function goToConfig() {
+        switchView('config');
+    }
+
+    // --- DATA GENERATION ---
+    function getColumnSelection(colId) {
+        const useNone = document.getElementById(`cb-${colId}-none`).checked;
+        const checkboxes = document.querySelectorAll(`.col-${colId}-check:checked`);
+        const letters = Array.from(checkboxes).map(cb => cb.value);
+        if (useNone) letters.push('');
+        return letters;
+    }
+
+    function generatePool() {
+        const p1 = getColumnSelection(1);
+        const p2 = getColumnSelection(2);
+        const p3 = getColumnSelection(3);
+
+        if (p1.length === 0 || p2.length === 0 || p3.length === 0) return [];
+
+        let pool = new Set();
+        p1.forEach(l1 => {
+            p2.forEach(l2 => {
+                p3.forEach(l3 => {
+                    const combined = l1 + l2 + l3;
+                    if (combined.trim().length > 0) pool.add(combined);
+                });
+            });
+        });
+        return Array.from(pool);
+    }
+
+    // --- PRINT FLOW ---
+
+    function handleGenerateCardsClick() {
+        const pool = generatePool();
+        if (pool.length < 15) {
+            document.getElementById('modal-msg').innerHTML = `Has de seleccionar més opcions.<br>Es necessiten almenys 15 combinacions possibles.<br><strong>Actualment en tens: ${pool.length}</strong>`;
+            document.getElementById('modal-warning').classList.remove('hidden');
+            return;
+        }
+        // Save pool temporarily for printing
+        state.pool = pool;
+        // Show Qty Modal
+        document.getElementById('modal-quantity').classList.remove('hidden');
+    }
+
+    function adjustQty(amount) {
+        const input = document.getElementById('qty-input');
+        let val = parseInt(input.value) || 0;
+        val += amount;
+        if (val < 1) val = 1;
+        input.value = val;
+    }
+
+    function confirmPrint() {
+        const qty = parseInt(document.getElementById('qty-input').value) || 4;
+        document.getElementById('modal-quantity').classList.add('hidden');
+        openPrintWindow(qty);
+    }
+
+    function openPrintWindow(qty) {
+        const pool = state.pool;
+        if (!pool || pool.length === 0) return;
+
+        // Generate Cards Data
+        const cardsData = [];
+        for (let i = 0; i < qty; i++) {
+            let cardItems = [];
+            let tempPool = [...pool];
+            while(cardItems.length < 15) {
+                if (tempPool.length === 0) tempPool = [...pool];
+                const randIndex = Math.floor(Math.random() * tempPool.length);
+                cardItems.push(tempPool.splice(randIndex, 1)[0]);
+            }
+            cardItems.sort(() => 0.5 - Math.random());
+            cardsData.push(cardItems);
+        }
+
+        // Build HTML for New Window
+        let cardsHtml = '';
+        
+        // We group by 4 for the page break logic
+        for (let i = 0; i < cardsData.length; i += 4) {
+            const batch = cardsData.slice(i, i + 4);
+            
+            cardsHtml += `<div class="page-container">`;
+            
+            batch.forEach((items, idx) => {
+                const cardIndex = i + idx + 1;
+                let grid = `<div class="card-grid">`;
+                items.forEach(item => {
+                    // Font scaling logic
+                    const fontSize = item.length > 3 ? '1.2rem' : '1.8rem';
+                    grid += `<div class="cell" style="font-size: ${fontSize};">${item}</div>`;
+                });
+                grid += `</div>`;
+                
+                cardsHtml += `
+                    <div class="card">
+                        <div class="card-header">Cartró ${cardIndex}</div>
+                        ${grid}
+                    </div>
+                `;
+            });
+            
+            cardsHtml += `</div>`; // Close page container
+        }
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="ca">
+            <head>
+                <meta charset="UTF-8">
+                <title>Imprimir Cartrons Bingo</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap');
+                    
+                    @page {
+                        size: A4 landscape;
+                        margin: 1cm;
+                    }
+                    
+                    body {
+                        font-family: 'Quicksand', sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background: white;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+
+                    .page-container {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-template-rows: 1fr 1fr;
+                        gap: 30px;
+                        width: 100%;
+                        height: 190mm; /* Fixed A4 landscape printable height to force break */
+                        box-sizing: border-box;
+                        page-break-after: always;
+                        break-after: page;
+                        padding-bottom: 20px;
+                    }
+                    
+                    .page-container:last-child {
+                        page-break-after: auto;
+                        break-after: auto;
+                    }
+
+                    .card {
+                        border: 2px solid #333;
+                        border-radius: 12px;
+                        padding: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        background: #fff;
+                        page-break-inside: avoid;
+                    }
+
+                    .card-header {
+                        text-align: center;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        background: #eee;
+                        padding: 5px;
+                        border-radius: 6px;
+                        margin-bottom: 10px;
+                        border: 1px solid #ddd;
+                        font-size: 0.9rem;
+                    }
+
+                    .card-grid {
+                        flex-grow: 1;
+                        display: grid;
+                        grid-template-columns: repeat(5, 1fr);
+                        grid-template-rows: repeat(3, 1fr);
+                        gap: 5px;
+                    }
+
+                    .cell {
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                ${cardsHtml}
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+
+    // --- GAME FLOW ---
+
+    function generateAndGo(target) {
+        const pool = generatePool();
+        
+        if (pool.length < 15) {
+            document.getElementById('modal-msg').innerHTML = `Has de seleccionar més opcions.<br>Es necessiten almenys 15 combinacions possibles.<br><strong>Actualment en tens: ${pool.length}</strong>`;
+            document.getElementById('modal-warning').classList.remove('hidden');
+            return;
+        }
+
+        state.pool = pool;
+        state.settings.showText = document.getElementById('opt-show-text').checked;
+        state.settings.playAudio = document.getElementById('opt-play-audio').checked;
+
+        // "game" is the only target now via this function
+        initGame();
+        switchView('game');
+    }
+
+    // --- GAME LOGIC ---
+
+    function initGame() {
+        state.deck = [...state.pool].sort(() => 0.5 - Math.random());
+        state.history = [];
+        document.getElementById('remaining-count').innerText = state.deck.length;
+        document.getElementById('game-start-msg').classList.remove('hidden');
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('game-hidden-icon').classList.add('hidden');
+        document.getElementById('history-row').innerHTML = '';
+        const btn = document.getElementById('btn-draw');
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'bg-slate-400', 'cursor-not-allowed');
+        btn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+        btn.innerHTML = `<span class="mr-3">Treure Bola</span> <i class="fas fa-random"></i>`;
+    }
+
+    function resetGame() {
+        if(confirm("Vols reiniciar la partida amb les mateixes síl·labes?")) {
+            initGame();
+        }
+    }
+
+    function drawNext() {
+        if (state.deck.length === 0) return;
+        const item = state.deck.pop();
+        state.history.unshift(item);
+        if (state.history.length > 20) state.history.pop();
+        updateGameDisplay(item);
+        updateHistoryUI();
+        document.getElementById('remaining-count').innerText = state.deck.length;
+        if (state.settings.playAudio) playSyllableAudio(item);
+        if (state.deck.length === 0) {
+            const btn = document.getElementById('btn-draw');
+            btn.innerHTML = `<span>Fi del Joc!</span>`;
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'bg-slate-400', 'cursor-not-allowed');
+            btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+        }
+    }
+
+    function updateGameDisplay(text) {
+        document.getElementById('game-start-msg').classList.add('hidden');
+        const contentDiv = document.getElementById('game-content');
+        const textEl = document.getElementById('syllable-display');
+        const hiddenIcon = document.getElementById('game-hidden-icon');
+        
+        if (state.settings.showText) {
+            contentDiv.classList.remove('hidden');
+            hiddenIcon.classList.add('hidden');
+            textEl.innerText = text;
+            textEl.className = "text-[18vw] md:text-[9rem] font-bold text-slate-800 leading-none text-center break-all select-none transform transition-all duration-300 scale-50 opacity-0";
+            requestAnimationFrame(() => {
+                textEl.className = "text-[18vw] md:text-[9rem] font-bold text-indigo-600 leading-none text-center break-all select-none transform transition-all duration-300 scale-100 opacity-100";
+            });
+        } else {
+            contentDiv.classList.add('hidden');
+            hiddenIcon.classList.remove('hidden');
+            hiddenIcon.classList.remove('animate-pulse');
+            void hiddenIcon.offsetWidth; 
+            hiddenIcon.classList.add('animate-pulse');
+        }
+    }
+
+    function updateHistoryUI() {
+        const row = document.getElementById('history-row');
+        row.innerHTML = state.history.map((item, idx) => `
+            <div class="flex-none w-14 h-14 flex items-center justify-center rounded-full border-2 font-bold text-lg shadow-sm transition-all
+                ${idx === 0 ? 'bg-teal-100 border-teal-500 text-teal-800 scale-105' : 'bg-white border-slate-200 text-slate-400 opacity-70'}">
+                ${item}
+            </div>
+        `).join('');
+    }
+
+    // --- AUDIO SYSTEM ---
+    function getCatalanVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        let voice = voices.find(v => v.lang === 'ca-ES' || v.lang === 'ca_ES');
+        if (!voice) voice = voices.find(v => v.name.includes('Catalan'));
+        if (!voice) voice = voices.find(v => v.lang.includes('ca'));
+        if (!voice) voice = voices.find(v => v.lang.includes('es')); 
+        return voice;
+    }
+
+    function playSyllableAudio(text) {
+        window.speechSynthesis.cancel(); 
+        let speakText = text.toLowerCase().trim();
+        const corrections = {
+            'vo': 'vó', 'ki': 'kí', 'ku': 'kú', 'ka': 'ká', 'ke': 'ké', 'ko': 'kó',
+            'wc': 'vàter', 'cd': 'cedé', 'pc': 'pecé', 'tv': 'tevé'
+        };
+        if (corrections[speakText]) speakText = corrections[speakText];
+
+        const u = new SpeechSynthesisUtterance(speakText);
+        u.lang = 'ca-ES';
+        u.rate = 0.7; 
+        u.pitch = 1.05;
+        const voice = getCatalanVoice();
+        if (voice) u.voice = voice;
+
+        const indicator = document.getElementById('audio-icon');
+        if (state.settings.showText) indicator.classList.remove('hidden');
+        u.onend = () => { if (state.settings.showText) indicator.classList.add('hidden'); };
+
+        window.speechSynthesis.speak(u);
+    }
+
+    function testAudio() { playSyllableAudio("Síl·laba"); }
+    function stopAudio() { window.speechSynthesis.cancel(); }
+
+    init();
+</script>
+</body>
+</html>
