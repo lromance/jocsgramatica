@@ -30,6 +30,11 @@
     <script type="text/babel">
         // === MAPEIG GENERAL DE SONS (AFI) ===
         const MAPEO_SONIDOS = {
+            // Trígrafs de 3 lletres
+            trigrafos: {
+                'cqu': { sons: ['k'], desc: 'Grup ortogràfic "cqu" que es pronuncia com una única oclusiva [k] (ex: Jacqueline)' }
+            },
+            // Dígrafs de 2 lletres
             digrafos: {
                 'ch': { sons: ['tʃ', 'ʃ', 'x', 'k'], desc: 'Com a "Charles" [ʃ] / [tʃ] o "Christian" [k]' },
                 'sh': { sons: ['ʃ'], desc: 'Fricativa postalveolar sorda, com la "sh" anglesa o "x" catalana' },
@@ -46,7 +51,10 @@
                 'tj': { sons: ['dʒ'], desc: 'Africada postalveolar sonora' },
                 'tg': { sons: ['dʒ'], desc: 'Africada postalveolar sonora' },
                 'sz': { sons: ['s', 'ʃ', 'z'], desc: 'Sorda [s] o fricativa [ʃ]' },
-                'cz': { sons: ['tʃ', 'ts'], desc: 'Com la "cz" polaca' }
+                'cz': { sons: ['tʃ', 'ts'], desc: 'Com la "cz" polaca' },
+                'ck': { sons: ['k'], desc: 'Grup ortogràfic "ck" que es pronuncia com una única oclusiva [k] (ex: Zack, Jack)' },
+                'qu': { sons: ['k', 'kw'], desc: 'Oclusiva velar sorda amb "u" muda [k] (ex: Quim, Jacqueline) o sonora [kw] (ex: Quentin)' },
+                'gu': { sons: ['g', 'ɣ', 'gw', 'ɣw'], desc: 'Oclusiva o aproximant velar amb "u" muda (ex: Guillem) o sonora [gw]' }
             },
             diftongos: {
                 'ai': { sons: ['aj', 'eɪ', 'eː'], desc: 'Diftong [aj], [eɪ] (anglès) o "e" llarga [eː] (ex: Uzair)' },
@@ -158,7 +166,8 @@
             { nom: 'Joan', desc: 'O-reduïda a [u] i J fricativa [ʒ]' },
             { nom: 'Charles', desc: 'Dígraf "ch" postalveolar, "e" muda i "r" aproximant' },
             { nom: 'Montserrat', desc: 'Sibilants catalanes clares, tònica i vocals neutres' },
-            { nom: 'Xavier', desc: 'X fricativa [ʃ] i aproximant dental suau [ð]' }
+            { nom: 'Xavier', desc: 'X fricativa [ʃ] i aproximant dental suau [ð]' },
+            { nom: 'Jacqueline', desc: 'Conté el trígraf "cqu", el dígraf "qu" i "e" final muda' }
         ];
 
         function App() {
@@ -176,6 +185,24 @@
                 let i = 0;
 
                 while (i < nom.length) {
+                    // 1. Intentar trígrafs de 3 lletres primer (per ex: "cqu")
+                    const posibleTrigrafo = nom.substring(i, i + 3);
+                    if (MAPEO_SONIDOS.trigrafos && MAPEO_SONIDOS.trigrafos[posibleTrigrafo]) {
+                        result.push({
+                            letras: posibleTrigrafo,
+                            originalCase: nomStr.substring(i, i + 3),
+                            tipo: 'trígraf',
+                            opciones: MAPEO_SONIDOS.trigrafos[posibleTrigrafo].sons,
+                            descripcion: MAPEO_SONIDOS.trigrafos[posibleTrigrafo].desc,
+                            seleccionado: MAPEO_SONIDOS.trigrafos[posibleTrigrafo].sons[0],
+                            esComencamentSillaba: false,
+                            custom: ''
+                        });
+                        i += 3;
+                        continue;
+                    }
+
+                    // 2. Intentar dígrafs de 2 lletres
                     const posibleDigrafo = nom.substring(i, i + 2);
                     if (MAPEO_SONIDOS.digrafos[posibleDigrafo]) {
                         result.push({
@@ -192,6 +219,7 @@
                         continue;
                     }
 
+                    // 3. Intentar diptongs de 2 lletres
                     const posibleDiptongo = nom.substring(i, i + 2);
                     if (MAPEO_SONIDOS.diftongos[posibleDiptongo]) {
                         let opciones = [...MAPEO_SONIDOS.diftongos[posibleDiptongo].sons];
@@ -209,6 +237,7 @@
                         continue;
                     }
 
+                    // 4. Lletra individual
                     const letra = nom[i];
                     if (MAPEO_SONIDOS.letras[letra]) {
                         let opciones = [...MAPEO_SONIDOS.letras[letra].sons];
@@ -261,8 +290,6 @@
                 segmentos.forEach((seg, idx) => {
                     if (seg.seleccionado === '∅') return;
                     
-                    // L'accent primari [ˈ] ja indica límit sil·làbic per definició en transcripció fonètica.
-                    // Si el segment és el tònic, posem l'accent, altrament si està marcat com a nova síl·laba posem un punt [.].
                     if (idx === accentSyllable) {
                         result += 'ˈ';
                     } else if (seg.esComencamentSillaba) {
