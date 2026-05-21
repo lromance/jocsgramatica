@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcriptor Fonètic Interactiu de Noms</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @keyframes scale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .animate-scale { animation: scale 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // === MAPEIG GENERAL DE SONS (AFI) ===
+        const MAPEO_SONIDOS = {
+            digrafos: {
+                'ch': { sons: ['tʃ', 'ʃ', 'x', 'k'], desc: 'Com a "Charles" [ʃ] / [tʃ] o "Christian" [k]' },
+                'sh': { sons: ['ʃ'], desc: 'Fricativa postalveolar sorda, com la "sh" anglesa o "x" catalana' },
+                'll': { sons: ['ʎ', 'j', 'l'], desc: 'Lateral palatal o "y" (ieisme)' },
+                'ny': { sons: ['ɲ'], desc: 'Nasal palatal (com "ny" en català o "ñ" en castellà)' },
+                'nh': { sons: ['ɲ', 'n'], desc: 'Nasal palatal (portuguès) o "n" aspirada' },
+                'lh': { sons: ['ʎ', 'l'], desc: 'Lateral palatal (portuguès) o "l" simple' },
+                'kh': { sons: ['x', 'χ', 'k'], desc: 'Jota forta o uvular àrab' },
+                'ph': { sons: ['f', 'p'], desc: 'Fricativa labiodental sorda (com "f")' },
+                'th': { sons: ['θ', 'ð', 't', 'tʰ', 'ʈʰ'], desc: 'Z anglesa sorda [θ], sonora [ð], "t" simple o aspirades de l\'hindostànic [tʰ], [ʈʰ]' },
+                'dh': { sons: ['dʱ', 'ɖʱ', 'ð', 'd'], desc: 'Sons aspirats de l\'hindi/urdú [dʱ], [ɖʱ] o fricativa dental sonora [ð]' },
+                'tz': { sons: ['ts', 'dz'], desc: 'Africades alveolars' },
+                'tx': { sons: ['tʃ'], desc: 'Com la "tx" catalana o basca' },
+                'tj': { sons: ['dʒ'], desc: 'Africada postalveolar sonora' },
+                'tg': { sons: ['dʒ'], desc: 'Africada postalveolar sonora' },
+                'sz': { sons: ['s', 'ʃ', 'z'], desc: 'Sorda [s] o fricativa [ʃ]' },
+                'cz': { sons: ['tʃ', 'ts'], desc: 'Com la "cz" polaca' }
+            },
+            diftongos: {
+                'ai': { sons: ['aj', 'eɪ', 'eː'], desc: 'Diftong [aj], [eɪ] (anglès) o "e" llarga [eː] (ex: Uzair)' },
+                'ay': { sons: ['aj', 'eɪ', 'eː'], desc: 'Diftong [aj], [eɪ] (anglès) o "e" llarga [eː]' },
+                'ei': { sons: ['ej', 'iː'], desc: 'Diftong [ej] o "i" llarga [iː]' },
+                'ey': { sons: ['ej', 'iː'], desc: 'Diftong [ej] o "i" llarga [iː]' },
+                'oi': { sons: ['ɔj'], desc: 'Diftong [ɔj]' },
+                'oy': { sons: ['ɔj'], desc: 'Diftong [ɔj]' },
+                'au': { sons: ['aw', 'ɔː'], desc: 'Diftong [aw] o "o" llarga [ɔː]' },
+                'eu': { sons: ['ew', 'juː'], desc: 'Diftong [ew] o "yu" [juː]' },
+                'ou': { sons: ['ow', 'uː', 'aʊ'], desc: 'Diftong [ow], "u" llarga [uː] o "ao" [aʊ] (anglès)' },
+                'ee': { sons: ['iː', 'e'], desc: '"i" llarga [iː]' },
+                'oo': { sons: ['uː', 'ɔː'], desc: '"u" llarga [uː] o "o" llarga [ɔː]' }
+            },
+            letras: {
+                'a': { sons: ['a', 'ə', 'æ', 'eɪ', 'ɑː'], desc: 'Vocal oberta [a], neutra [ə] o variants angleses' },
+                'e': { sons: ['e', 'ɛ', 'ə', 'iː', '∅'], desc: 'E tancada, oberta, neutra, "i" llarga o muda' },
+                'i': { sons: ['i', 'ɪ', 'aɪ'], desc: 'I tancada [i], curta [ɪ] o diptong "ai"' },
+                'o': { sons: ['o', 'ɔ', 'u', 'ɒ', 'əʊ', 'ʌ'], desc: 'O tancada, oberta, reduïda a "u", o variants angleses' },
+                'u': { sons: ['u', 'ʌ', 'juː'], desc: 'U tancada [u], curta anglesa [ʌ] o "yu" [juː]' },
+                'y': { sons: ['i', 'j', 'aɪ'], desc: 'I semivocal [j], tancada [i] o diptong' },
+                'b': { sons: ['b', 'β'], desc: 'Oclusiva [b] o aproximant suau [β]' },
+                'c': { sons: ['k', 's', 'θ'], desc: 'Oclusiva [k], fricativa sorda [s] o "z" castellana [θ]' },
+                'd': { sons: ['d', 'ð', 'ɖ', 'dʱ', 'ɖʱ'], desc: 'Oclusiva dental [d], aproximant suau [ð] o variants indostàniques' },
+                'f': { sons: ['f'], desc: 'Fricativa labiodental sorda' },
+                'g': { sons: ['g', 'ɣ', 'ʒ', 'x', 'dʒ'], desc: 'Oclusiva/aproximant, jota o fricativa postalveolar sonora' },
+                'h': { sons: ['∅', 'h'], desc: 'Muda o aspirada' },
+                'j': { sons: ['ʒ', 'dʒ', 'x', 'j'], desc: 'Fricativa [ʒ], africada [dʒ], jota o semivocal [j]' },
+                'k': { sons: ['k'], desc: 'Oclusiva velar sorda' },
+                'l': { sons: ['l', 'ɫ'], desc: 'Alveolar [l] o bleda/velaritzada [ɫ]' },
+                'm': { sons: ['m'], desc: 'Nasal bilabial' },
+                'n': { sons: ['n', 'ŋ', 'ɳ'], desc: 'Nasal alveolar [n], velar [ŋ] o retroflexa [ɳ]' },
+                'p': { sons: ['p', 'pʰ'], desc: 'Bilabial sorda' },
+                'q': { sons: ['k'], desc: 'Oclusiva velar sorda' },
+                'r': { sons: ['r', 'ɾ', 'ɹ', 'ɽ', '∅'], desc: 'Vibrant múltiple [r], simple [ɾ], aproximant anglesa [ɹ], retroflexa simple [ɽ] o muda' },
+                's': { sons: ['s', 'z'], desc: 'S sorda [s] o sonora [z]' },
+                't': { sons: ['t', 'tʰ', 'ʈ', 'ʈʰ'], desc: 'Oclusiva dental [t], aspirada [tʰ] o variants retroflexes de l\'hindi [ʈ], [ʈʰ]' },
+                'v': { sons: ['b', 'β', 'v'], desc: 'Equivalència a b/v en català o fricativa labiodental sonora anglesa [v]' },
+                'w': { sons: ['w', 'v'], desc: 'Aproximant labiovelar o fricativa' },
+                'x': { sons: ['ʃ', 'ks', 'gz'], desc: 'Fricativa postalveolar, "ks" o "gz"' },
+                'z': { sons: ['z', 'θ', 'ts'], desc: 'S sonora [z], sorda castellana [θ] o africada' }
+            }
+        };
+
+        const DESCRIPCION_FONEMAS = {
+            'a': 'Vocal oberta central (com la "a" estàndard catalana o castellana)',
+            'ə': 'Vocal neutra / Schwa (so relaxat, com les "a/e" àtones en català oriental)',
+            'æ': 'Vocal gairebé oberta anterior ("a" anglesa a "cat")',
+            'eɪ': 'Diftong "ei" ("a" anglesa a "James")',
+            'eː': 'Vocal tancada anterior llarga (com en noms àrabs/urdús, ex: Uzair)',
+            'e': 'Vocal tancada anterior ("e" tancada de "més")',
+            'ɛ': 'Vocal oberta anterior ("e" oberta de "terra")',
+            'iː': 'Vocal tancada anterior llarga ("ee" anglesa)',
+            'ɪ': 'Vocal gairebé tancada anterior (i breu anglesa)',
+            'aɪ': 'Diftong "ai" ("i" anglesa de "Mike")',
+            'o': 'Vocal tancada posterior ("o" tancada de "tot")',
+            'ɔ': 'Vocal oberta posterior ("o" oberta de "cosa")',
+            'u': 'Vocal tancada posterior ("u" estàndard)',
+            'uː': 'Vocal tancada posterior llarga ("oo" anglesa o "ou" francesa)',
+            'ɒ': 'Vocal oberta posterior curta ("o" anglesa a "hot")',
+            'əʊ': 'Diftong "ou" anglès ("o" a "rose")',
+            'ʌ': 'Vocal semioberta posterior ("u" anglesa curta a "cup")',
+            'aj': 'Diftong decreixent "ai" (com a "Aina")',
+            'ej': 'Diftong decreixent "ei" (com a "Eira")',
+            'ɔj': 'Diftong decreixent "oi" (com a "boy")',
+            'aw': 'Diftong decreixent "au" (com a "Laura")',
+            'ɔː': 'Vocal semioberta posterior llarga ("au" a "Paul")',
+            'ew': 'Diftong decreixent "eu" (com a "Eugenio")',
+            'juː': 'Sò de "yu" llarg ("u" a "Lucy")',
+            'ow': 'Diftong decreixent "ou"',
+            'aʊ': 'Diftong "au" obert anglès ("ow" a "cow")',
+            'b': 'Sonoritat "b" oclusiva forta',
+            'β': 'Sonoritat "b" o "v" suau/aproximant entre vocals',
+            'd': 'Sonoritat "d" oclusiva forta',
+            'ð': 'Sonoritat "d" suau/aproximant entre vocals',
+            'g': 'Sonoritat "g" oclusiva forta',
+            'ɣ': 'Sonoritat "g" suau/aproximant entre vocals',
+            'tʃ': 'Sò de la "tx" catalana o "ch" castellana',
+            'ʃ': 'Fricativa postalveolar sorda (com la "sh" anglesa o la "x" de "xarop")',
+            'ʒ': 'Fricativa postalveolar sonora (com la "j" de "joc" o "g" de "gent")',
+            'dʒ': 'Africada postalveolar sonora (com la "tg" de "metge" o "j" anglesa)',
+            'x': 'Fricativa velar sorda (com la "j" castellana de "jamón")',
+            'h': 'Aspiració suau (en anglès o hindi)',
+            'θ': 'Sò de la "z" castellana o "th" anglesa de "think"',
+            'z': 'Sò de la "s" sonora / zumzeig ("s" de "rosa" o "z" anglesa)',
+            's': 'Sò de la "s" sorda estàndard',
+            'r': 'Vibrant múltiple alveolar (so fort de "roda" o "carretera")',
+            'ɾ': 'Vibrant simple alveolar (so de "para")',
+            'ɹ': 'Sò de la "r" anglesa aproximant',
+            'ɲ': 'Nasal palatal (so de la "ny" catalana o "ñ" castellana)',
+            'ʎ': 'Lateral palatal (so de la "ll" catalana o "lh" portuguesa)',
+            'j': 'Semivocal "y" ("i" de "iode")',
+            'w': 'Semivocal "u" ràpida ("web" o "cuanto")',
+            'ɫ': 'La "l" velaritzada (so de la "l" fosca catalana)',
+            '∅': 'So mut (no es pronuncia)',
+            'ʈ': 'Oclusiva retroflexa sorda (hindi, amb la llengua cap al paladar)',
+            'ʈʰ': 'Oclusiva retroflexa sorda aspirada (hindi, amb cop d\'aire)',
+            'ɖ': 'Oclusiva retroflexa sonora (hindi)',
+            'ɖʱ': 'Oclusiva retroflexa sonora aspirada (hindi)',
+            'dʱ': 'Oclusiva dental sonora aspirada (hindi/urdú, d amb aire)',
+            'tʰ': 'Oclusiva dental sorda aspirada (hindi/urdú, t amb aire)',
+            'ɽ': 'Vibrant retroflexa simple (hindi)',
+            'ɳ': 'Nasal retroflexa (hindi)'
+        };
+
+        const PRESETS = [
+            { nom: 'Uzair', desc: 'Conté diftong "ai" com a e llarga i oclusiva de final vibrat' },
+            { nom: 'Alice', desc: 'Conté "e" final muda i vocal "a" anglesa' },
+            { nom: 'Joan', desc: 'O-reduïda a [u] i J fricativa [ʒ]' },
+            { nom: 'Charles', desc: 'Dígraf "ch" postalveolar, "e" muda i "r" aproximant' },
+            { nom: 'Montserrat', desc: 'Sibilants catalanes clares, tònica i vocals neutres' },
+            { nom: 'Xavier', desc: 'X fricativa [ʃ] i aproximant dental suau [ð]' }
+        ];
+
+        function App() {
+            const [nombre, setNombre] = React.useState('Uzair');
+            const [segmentos, setSegmentos] = React.useState([]);
+            const [accentSyllable, setAccentSyllable] = React.useState(0);
+            const [mostrarAyuda, setMostrarAyuda] = React.useState(true);
+            const [copiado, setCopiado] = React.useState(false);
+            const [transcripcionFinal, setTranscripcionFinal] = React.useState('');
+
+            const parsearNombre = (nomStr) => {
+                if (!nomStr) return [];
+                const nom = nomStr.toLowerCase().trim();
+                const result = [];
+                let i = 0;
+
+                while (i < nom.length) {
+                    const posibleDigrafo = nom.substring(i, i + 2);
+                    if (MAPEO_SONIDOS.digrafos[posibleDigrafo]) {
+                        result.push({
+                            letras: posibleDigrafo,
+                            originalCase: nomStr.substring(i, i + 2),
+                            tipo: 'dígraf',
+                            opciones: MAPEO_SONIDOS.digrafos[posibleDigrafo].sons,
+                            descripcion: MAPEO_SONIDOS.digrafos[posibleDigrafo].desc,
+                            seleccionado: MAPEO_SONIDOS.digrafos[posibleDigrafo].sons[0],
+                            custom: ''
+                        });
+                        i += 2;
+                        continue;
+                    }
+
+                    const posibleDiptongo = nom.substring(i, i + 2);
+                    if (MAPEO_SONIDOS.diftongos[posibleDiptongo]) {
+                        let opciones = [...MAPEO_SONIDOS.diftongos[posibleDiptongo].sons];
+                        result.push({
+                            letras: posibleDiptongo,
+                            originalCase: nomStr.substring(i, i + 2),
+                            tipo: 'diftong',
+                            opciones: opciones,
+                            descripcion: MAPEO_SONIDOS.diftongos[posibleDiptongo].desc,
+                            seleccionado: opciones[0],
+                            custom: ''
+                        });
+                        i += 2;
+                        continue;
+                    }
+
+                    const letra = nom[i];
+                    if (MAPEO_SONIDOS.letras[letra]) {
+                        let opciones = [...MAPEO_SONIDOS.letras[letra].sons];
+                        if (letra === 'e' && i === nom.length - 1 && nom.length > 2) {
+                            opciones = ['∅', 'e', 'ə', 'iː'];
+                        }
+
+                        result.push({
+                            letras: letra,
+                            originalCase: nomStr.substring(i, i + 1),
+                            tipo: 'lletra',
+                            opciones: opciones,
+                            descripcion: MAPEO_SONIDOS.letras[letra].desc,
+                            seleccionado: opciones[0],
+                            custom: ''
+                        });
+                    } else {
+                        result.push({
+                            letras: letra,
+                            originalCase: nomStr.substring(i, i + 1),
+                            tipo: 'caràcter literal',
+                            opciones: [letra],
+                            descripcion: 'Caràcter literal',
+                            seleccionado: letra,
+                            custom: ''
+                        });
+                    }
+                    i++;
+                }
+                return result;
+            };
+
+            React.useEffect(() => {
+                const segs = parsearNombre(nombre);
+                setSegmentos(segs);
+                const vocalIndices = segs
+                    .map((s, idx) => (['a', 'e', 'i', 'o', 'u', 'y'].includes(s.letras[0]) || s.tipo === 'diftong' ? idx : null))
+                    .filter((v) => v !== null);
+                if (vocalIndices.length > 0) {
+                    setAccentSyllable(vocalIndices[vocalIndices.length - 1]);
+                } else {
+                    setAccentSyllable(0);
+                }
+            }, [nombre]);
+
+            React.useEffect(() => {
+                let result = '';
+                segmentos.forEach((seg, idx) => {
+                    if (seg.seleccionado === '∅') return;
+                    if (idx === accentSyllable) {
+                        result += 'ˈ';
+                    }
+                    result += seg.seleccionado;
+                });
+                setTranscripcionFinal(`[${result}]`);
+            }, [segmentos, accentSyllable]);
+
+            const handleCambioSeleccion = (segmentIndex, nuevoSonido) => {
+                setSegmentos((prev) =>
+                    prev.map((seg, idx) => (idx === segmentIndex ? { ...seg, seleccionado: nuevoSonido } : seg))
+                );
+            };
+
+            const handleCustomInputChange = (segmentIndex, val) => {
+                setSegmentos((prev) =>
+                    prev.map((seg, idx) => {
+                        if (idx === segmentIndex) {
+                          return {
+                            ...seg,
+                            custom: val,
+                            seleccionado: val === '' ? seg.opciones[0] : val
+                          };
+                        }
+                        return seg;
+                    })
+                );
+            };
+
+            const copiarPortapapeles = () => {
+                const el = document.createElement('textarea');
+                el.value = transcripcionFinal;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                setCopiado(true);
+                setTimeout(() => setCopiado(false), 2000);
+            };
+
+            return (
+                <div className="min-h-screen p-4 md:p-8 flex flex-col items-center">
+                    <div className="max-w-4xl w-full space-y-8">
+                        
+                        {/* === HEADER === */}
+                        <header className="text-center space-y-3">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-sm">
+                                <span className="text-indigo-400">✨ Laboratori Fonètic Multilingüe</span>
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent0">
+                                Com sona el teu nom?
+                            </h1>
+                            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+                                Escriu qualsevol nom del món i descobreix, valida o personalitza la seva transcripció fonética (AFI) de manera interactiva.
+                            </p>
+                        </header>
+
+                        {/* === MAIN INTERFACE === */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            {/* INPUT CARD */}
+                            <div className="bg-slate-800/80 border border-slate-700/60 p-5 rounded-xl shadow-xl col-span-1 md:col-span-2 space-y-4">
+                                <h2 className="text-lg font-semibold text-slate-200">Introdueix un nom</h2>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Escriu un nom (ex. Uzair, Alice, Joan...)"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
+                                        className="w-full bg-slate-950/60 border border-slate-700 rounded-lg p-3 text-slate-100 placeholder-slate-500 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                    <button 
+                                        onClick={() => setNombre('')}
+                                        className="border border-slate-700 hover:bg-slate-700 text-slate-300 p-3 rounded-lg flex items-center justify-center transition"
+                                    >
+                                        🔄
+                                    </button>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <span className="text-xs text-slate-400 font-medium uppercase tracking-wider block">Noms de prova interessants:</span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {PRESETS.map((p) => (
+                                            <button
+                                                key={p.nom}
+                                                onClick={() => setNombre(p.nom)}
+                                                className={`px-3 py-1 text-xs font-semibold rounded-md border transition-all duration-200 ${
+                                                    nombre.toLowerCase() === p.nom.toLowerCase()
+                                                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                                                        : 'bg-slate-900/60 border-slate-700/80 text-slate-300 hover:border-slate-600 hover:bg-slate-700'
+                                                }`}
+                                                title={p.desc}
+                                            >
+                                                {p.nom}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RESULT CARD */}
+                            <div className="bg-gradient-to-br from-indigo-950/50 via-slate-900 to-slate-850 border border-indigo-500/20 p-5 rounded-xl shadow-2xl flex flex-col justify-between space-y-4">
+                                <div className="space-y-2 text-center md:text-left">
+                                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Resultat AFI</span>
+                                    <div className="text-3xl md:text-4xl font-mono font-bold tracking-wider text-emerald-400 bg-slate-950/80 py-4 px-3 rounded-xl border border-emerald-500/10 break-all select-all">
+                                        {transcripcionFinal}
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={copiarPortapapeles}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
+                                >
+                                    <span>{copiado ? '📋 Copiat!' : '📄 Copiar'}</span>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        {/* === SEGMENT CARD CONSTRUCTORS === */}
+                        {segmentos.length > 0 && (
+                            <div className="bg-slate-800/80 border border-slate-700/60 shadow-xl rounded-xl overflow-hidden">
+                                <div className="bg-slate-800 border-b border-slate-700/50 py-4 px-6 flex justify-between items-center">
+                                    <h3 className="text-lg font-bold text-slate-200">Pas 2: Edita i personalitza cada so</h3>
+                                    <button 
+                                        onClick={() => setMostrarAyuda(!mostrarAyuda)} 
+                                        className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-semibold"
+                                    >
+                                        ℹ️ {mostrarAyuda ? 'Ocultar llegenda' : 'Veure llegenda'}
+                                    </button>
+                                </div>
+                                <div className="p-6">
+                                    <div className="text-sm text-slate-400 mb-6 bg-slate-900/40 p-3 rounded-lg border border-slate-700/40">
+                                        🚀 <strong>Instruccions de joc:</strong> Fes clic a cada targeta per canviar el so suggerit. Selecciona el símbol <span className="text-yellow-400">★</span> per marcar la síl·laba tònica. Si el so que busques no està proposat, pots <strong>enganxar o escriure lliurement qualsevol símbol AFI</strong> a la capsa de text personalitzat que hi ha sota de cada segment.
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                                        {segmentos.map((seg, idx) => {
+                                            const esTonica = idx === accentSyllable;
+                                            return (
+                                                <div 
+                                                    key={idx} 
+                                                    className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 w-28 ${
+                                                        esTonica 
+                                                            ? 'bg-indigo-950/40 border-indigo-500/60 ring-1 ring-indigo-500/20' 
+                                                            : 'bg-slate-900/60 border-slate-700/80 hover:border-slate-600'
+                                                    }`}
+                                                >
+                                                    <button
+                                                        onClick={() => setAccentSyllable(idx)}
+                                                        className={`text-[11px] px-2 py-0.5 rounded-full mb-3 flex items-center gap-1 transition-all ${
+                                                            esTonica 
+                                                                ? 'bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/30' 
+                                                                : 'text-slate-500 hover:text-slate-300'
+                                                        }`}
+                                                    >
+                                                        ★ {esTonica ? 'Tònica' : 'Fer tònica'}
+                                                    </button>
+
+                                                    <span className="text-2xl font-bold text-slate-100 uppercase tracking-widest bg-slate-950/40 px-3 py-1 rounded border border-slate-700/30 mb-3">
+                                                        {seg.originalCase}
+                                                    </span>
+
+                                                    <div className="w-full space-y-1">
+                                                        <span className="text-[10px] text-slate-500 block text-center uppercase font-bold tracking-wider">So AFI</span>
+                                                        <div className="grid grid-cols-1 gap-1">
+                                                            {seg.opciones.map((sonido) => (
+                                                                <button
+                                                                    key={sonido}
+                                                                    onClick={() => handleCambioSeleccion(idx, sonido)}
+                                                                    className={`py-1 px-2 rounded font-mono text-xs transition-all flex items-center justify-between ${
+                                                                        seg.seleccionado === sonido && seg.custom === ''
+                                                                            ? 'bg-emerald-600 text-white font-bold border border-emerald-500'
+                                                                            : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300'
+                                                                    }`}
+                                                                    title={DESCRIPCION_FONEMAS[sonido] || 'Descripció no disponible'}
+                                                                >
+                                                                    <span>[{sonido}]</span>
+                                                                    {seg.seleccionado === sonido && seg.custom === '' && <span>✓</span>}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* INPUT MANUAL LLIURE */}
+                                                    <div className="mt-3 pt-3 border-t border-slate-700/50 w-full">
+                                                        <label className="text-[9px] text-slate-400 uppercase font-bold block text-center mb-1">
+                                                            Personalitzat:
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Ex: bʱ"
+                                                            value={seg.custom}
+                                                            onChange={(e) => handleCustomInputChange(idx, e.target.value)}
+                                                            className="w-full h-7 text-xs bg-slate-950 rounded border border-slate-700 text-center font-mono text-emerald-400 focus:outline-none focus:border-indigo-500"
+                                                            title="Escriu o enganxa aquí qualsevol símbol de l'AFI"
+                                                        />
+                                                    </div>
+
+                                                    <span className="text-[9px] text-slate-400 mt-3 px-1.5 py-0.5 rounded bg-slate-850 border border-slate-800">
+                                                        {seg.tipo}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* === LEGEND REFERENCE TABLE === */}
+                        {segmentos.length > 0 && mostrarAyuda && (
+                            <div className="bg-slate-800/40 border border-slate-700/40 shadow-md rounded-xl p-4">
+                                <div className="text-sm font-bold text-slate-300 flex items-center gap-1.5 mb-3">
+                                    <span>ℹ️ Explicació fonètica de les teves tries</span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
+                                    {segmentos.map((seg, idx) => {
+                                        const desc = DESCRIPCION_FONEMAS[seg.seleccionado] || 'Símbol personalitzat o de l\'AFI introduït manualment a la caixa de text.';
+                                        return (
+                                            <div key={idx} className="flex items-center gap-2 bg-slate-900/20 p-2 rounded border border-slate-700/20">
+                                                <span className="font-mono bg-slate-950 px-2 py-1 rounded text-emerald-400 font-bold">[{seg.seleccionado}]</span>
+                                                <div>
+                                                    <span className="font-bold text-slate-200 block uppercase tracking-wider text-[9px]">{seg.originalCase}</span>
+                                                    <span className="text-slate-400 text-[11px]">{desc}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+            );
+        }
+
+        // Renderitzat de l'aplicació React
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
