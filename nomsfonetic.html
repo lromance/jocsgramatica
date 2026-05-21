@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transcriptor Fonètic Interactiu de Noms</title>
     
+    <!-- React i ReactDOM des de CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
+    <!-- Babel per compilar JSX al vol en el navegador -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
+    <!-- Tailwind CSS per als estils -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         @keyframes scale {
@@ -184,6 +185,7 @@
                             opciones: MAPEO_SONIDOS.digrafos[posibleDigrafo].sons,
                             descripcion: MAPEO_SONIDOS.digrafos[posibleDigrafo].desc,
                             seleccionado: MAPEO_SONIDOS.digrafos[posibleDigrafo].sons[0],
+                            esComencamentSillaba: false,
                             custom: ''
                         });
                         i += 2;
@@ -200,6 +202,7 @@
                             opciones: opciones,
                             descripcion: MAPEO_SONIDOS.diftongos[posibleDiptongo].desc,
                             seleccionado: opciones[0],
+                            esComencamentSillaba: false,
                             custom: ''
                         });
                         i += 2;
@@ -220,6 +223,7 @@
                             opciones: opciones,
                             descripcion: MAPEO_SONIDOS.letras[letra].desc,
                             seleccionado: opciones[0],
+                            esComencamentSillaba: false,
                             custom: ''
                         });
                     } else {
@@ -230,6 +234,7 @@
                             opciones: [letra],
                             descripcion: 'Caràcter literal',
                             seleccionado: letra,
+                            esComencamentSillaba: false,
                             custom: ''
                         });
                     }
@@ -255,8 +260,13 @@
                 let result = '';
                 segmentos.forEach((seg, idx) => {
                     if (seg.seleccionado === '∅') return;
+                    
+                    // L'accent primari [ˈ] ja indica límit sil·làbic per definició en transcripció fonètica.
+                    // Si el segment és el tònic, posem l'accent, altrament si està marcat com a nova síl·laba posem un punt [.].
                     if (idx === accentSyllable) {
                         result += 'ˈ';
+                    } else if (seg.esComencamentSillaba) {
+                        result += '.';
                     }
                     result += seg.seleccionado;
                 });
@@ -266,6 +276,12 @@
             const handleCambioSeleccion = (segmentIndex, nuevoSonido) => {
                 setSegmentos((prev) =>
                     prev.map((seg, idx) => (idx === segmentIndex ? { ...seg, seleccionado: nuevoSonido } : seg))
+                );
+            };
+
+            const toggleSillaba = (segmentIndex) => {
+                setSegmentos((prev) =>
+                    prev.map((seg, idx) => (idx === segmentIndex ? { ...seg, esComencamentSillaba: !seg.esComencamentSillaba } : seg))
                 );
             };
 
@@ -304,7 +320,7 @@
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-sm">
                                 <span className="text-indigo-400">✨ Laboratori Fonètic Multilingüe</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent0">
+                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
                                 Com sona el teu nom?
                             </h1>
                             <p className="text-slate-400 text-lg max-w-xl mx-auto">
@@ -387,7 +403,9 @@
                                 </div>
                                 <div className="p-6">
                                     <div className="text-sm text-slate-400 mb-6 bg-slate-900/40 p-3 rounded-lg border border-slate-700/40">
-                                        🚀 <strong>Instruccions de joc:</strong> Fes clic a cada targeta per canviar el so suggerit. Selecciona el símbol <span className="text-yellow-400">★</span> per marcar la síl·laba tònica. Si el so que busques no està proposat, pots <strong>enganxar o escriure lliurement qualsevol símbol AFI</strong> a la capsa de text personalitzat que hi ha sota de cada segment.
+                                        🚀 <strong>Instruccions de joc:</strong> Fes clic a cada targeta per triar els sons de l'AFI. 
+                                        Usa <strong>★ Fer tònica</strong> per posar l'accent principal <code>[ˈ]</code> abans d'aquest segment.
+                                        Usa <strong>• Síl·laba</strong> per marcar l'inici d'una nova síl·laba (afegirà un punt <code>[.]</code> de divisió sil·làbica abans del segment si no té l'accent tònic).
                                     </div>
 
                                     <div className="flex flex-wrap gap-4 justify-center md:justify-start">
@@ -396,22 +414,39 @@
                                             return (
                                                 <div 
                                                     key={idx} 
-                                                    className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 w-28 ${
+                                                    className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 w-32 ${
                                                         esTonica 
                                                             ? 'bg-indigo-950/40 border-indigo-500/60 ring-1 ring-indigo-500/20' 
                                                             : 'bg-slate-900/60 border-slate-700/80 hover:border-slate-600'
                                                     }`}
                                                 >
-                                                    <button
-                                                        onClick={() => setAccentSyllable(idx)}
-                                                        className={`text-[11px] px-2 py-0.5 rounded-full mb-3 flex items-center gap-1 transition-all ${
-                                                            esTonica 
-                                                                ? 'bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/30' 
-                                                                : 'text-slate-500 hover:text-slate-300'
-                                                        }`}
-                                                    >
-                                                        ★ {esTonica ? 'Tònica' : 'Fer tònica'}
-                                                    </button>
+                                                    {/* Controladors d'accent i síl·laba */}
+                                                    <div className="flex flex-col gap-1 w-full mb-3">
+                                                        <button
+                                                            onClick={() => setAccentSyllable(idx)}
+                                                            className={`text-[10px] py-1 px-1.5 rounded-md flex items-center justify-center gap-1 transition-all ${
+                                                                esTonica 
+                                                                    ? 'bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/30' 
+                                                                    : 'bg-slate-800 text-slate-500 hover:text-slate-300 border border-transparent'
+                                                            }`}
+                                                            title="Marcar com a síl·laba tònica (accent)"
+                                                        >
+                                                            ★ {esTonica ? 'Tònica' : 'Fer tònica'}
+                                                        </button>
+                                                        
+                                                        <button
+                                                            onClick={() => toggleSillaba(idx)}
+                                                            className={`text-[10px] py-1 px-1.5 rounded-md flex items-center justify-center gap-1 transition-all ${
+                                                                seg.esComencamentSillaba 
+                                                                    ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' 
+                                                                    : 'bg-slate-800 text-slate-500 hover:text-slate-300 border border-transparent'
+                                                            }`}
+                                                            disabled={esTonica}
+                                                            title={esTonica ? "La síl·laba tònica ja comença una síl·laba per defecte" : "Marcar com a inici de síl·laba"}
+                                                        >
+                                                            • {seg.esComencamentSillaba ? 'Síl·laba' : 'Fer síl·laba'}
+                                                        </button>
+                                                    </div>
 
                                                     <span className="text-2xl font-bold text-slate-100 uppercase tracking-widest bg-slate-950/40 px-3 py-1 rounded border border-slate-700/30 mb-3">
                                                         {seg.originalCase}
@@ -492,7 +527,6 @@
             );
         }
 
-        // Renderitzat de l'aplicació React
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
